@@ -1,0 +1,52 @@
+@layer base, custom;
+
+@import 'carbon-components-svelte/css/white.css' layer(base);
+
+/* Theme Colors */
+:root {
+	--panel-background: #b55945ff;
+	--panel-text: white;
+	--primary: #45a1b5;
+	--primary-hover: #7abecc;
+	--primary-active: #30707e;
+
+	accent-color: var(--primary);
+}
+
+/* Button and Link Colors */
+.bx--btn--primary:not(.bx--btn--disabled) {
+	background-color: var(--primary);
+	color: white;
+
+	&:hover {
+		background-color: var(--primary-hover);
+	}
+	&.active {
+		background-color: var(--primary-active);
+	}
+}
+
+/* Loading Component */
+.bx--loading__stroke {
+	stroke: var(--primary);
+}
+
+/* Header */
+.bx--header {
+	background-color: var(--panel-background);
+
+	.bx--header__name,
+	.bx--header__name:hover {
+		color: var(--panel-text);
+	}
+}
+
+/* Data Table */
+.bx--data-table th {
+	background-color: var(--panel-background);
+}
+
+/* Progress Bar */
+.bx--progress-bar__bar {
+	background-color: var(--primary);
+}
