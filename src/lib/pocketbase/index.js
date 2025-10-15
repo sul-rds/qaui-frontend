@@ -41,3 +41,11 @@ export async function login(email, password) {
 		}
 	}
 }
+
+export async function getProjectById(/** @type {string} */ id) {
+	return pb.collection('projects').getOne(id);
+}
+
+export async function getImagesByProjectId(/** @type {string} */ id) {
+	return pb.collection('images').getFullList({ filter: `project="${id}"` });
+}
