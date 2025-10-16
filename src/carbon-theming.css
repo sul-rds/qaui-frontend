@@ -26,6 +26,10 @@
 	}
 }
 
+.bx--btn.bx--btn--icon-only.bx--tooltip__trigger:focus {
+	border-color: var(--primary);
+}
+
 /* Loading Component */
 .bx--loading__stroke {
 	stroke: var(--primary);

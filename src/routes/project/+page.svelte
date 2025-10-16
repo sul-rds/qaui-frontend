@@ -48,25 +48,27 @@
 
 		<section class="thumbnails">
 			{#each images as image (image.id)}
-				<article>
-					<ImageLoader
-						fadeIn
-						src={image.image_url.replace('full/full', 'full/150,')}
-						alt={image.title}
-					/>
-					<p>{image.title}</p>
+				<a href="image/?imageId={image.id}">
+					<article>
+						<ImageLoader
+							fadeIn
+							src={image.image_url.replace('full/full', 'full/150,')}
+							alt={image.title}
+						/>
+						<p>{image.title}</p>
 
-					{#if image.modified || image.approved}
-						<p class="overlay">
-							{#if image.modified}
-								<span use:tooltip={{ content: 'Modified' }}><CheckmarkOutline /></span>
-							{/if}
-							{#if image.approved}
-								<span use:tooltip={{ content: 'Approved' }}><CheckmarkFilled /></span>
-							{/if}
-						</p>
-					{/if}
-				</article>
+						{#if image.modified || image.approved}
+							<p class="overlay">
+								{#if image.modified}
+									<span use:tooltip={{ content: 'Modified' }}><CheckmarkOutline /></span>
+								{/if}
+								{#if image.approved}
+									<span use:tooltip={{ content: 'Approved' }}><CheckmarkFilled /></span>
+								{/if}
+							</p>
+						{/if}
+					</article>
+				</a>
 			{/each}
 		</section>
 	{/await}

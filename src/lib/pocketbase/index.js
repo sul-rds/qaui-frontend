@@ -49,3 +49,7 @@ export async function getProjectById(/** @type {string} */ id) {
 export async function getImagesByProjectId(/** @type {string} */ id) {
 	return pb.collection('images').getFullList({ filter: `project="${id}"` });
 }
+
+export async function getImageById(/** @type {string} */ id) {
+	return pb.collection('images').getOne(id);
+}
