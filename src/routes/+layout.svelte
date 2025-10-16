@@ -33,13 +33,9 @@
 </Header>
 
 <Content>
-	<Grid>
-		<Row>
-			<Column>
-				{@render children?.()}
-			</Column>
-		</Row>
-	</Grid>
+	<section>
+		{@render children?.()}
+	</section>
 </Content>
 
 <style>
@@ -47,6 +43,18 @@
 		body {
 			background-color: #efefef;
 			font-family: 'Mulish Variable', sans-serif;
+		}
+
+		#main-content {
+			height: calc(100vh - 3rem);
+			overflow: hidden;
+		}
+
+		section {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			overflow: hidden;
 		}
 
 		a {
