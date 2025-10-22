@@ -2,23 +2,52 @@
 	/**
 	 * @typedef {import('../../../lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
 	 */
-
+	import { setContext } from 'svelte';
 	import { page } from '$app/state';
 	import { Button, InlineNotification } from 'carbon-components-svelte';
 	import { ArrowRight, ArrowLeft } from 'carbon-icons-svelte';
 
-	import { pb, getImageById } from '$lib/pocketbase';
+	import { getProjectById, getImageById } from '$lib/pocketbase';
 
 	import QaInterface from '$components/QaInterface.svelte';
 
-	let isLoggedIn = $state(pb.authStore.isValid);
-	/** @type {Promise<ImagesResponse>|ImagesResponse|undefined} */
-	let image = $state();
-
 	const imageId = page.url.searchParams.get('imageId');
-	if (imageId) {
-		image = getImageById(imageId);
+
+	let image = $state();
+	let project = $state();
+	let loading = $state(true);
+	let error = $state();
+
+	async function loadData() {
+		loading = true;
+		error = null;
+		try {
+			image = await getImageById(imageId);
+			project = await getProjectById(image.project);
+		} catch (e) {
+			error = e;
+		} finally {
+			loading = false;
+		}
 	}
+
+	setContext('imageData', {
+		get image() {
+			return image;
+		},
+		get project() {
+			return project;
+		},
+		get loading() {
+			return loading;
+		},
+		get error() {
+			return error;
+		},
+		reload: loadData
+	});
+
+	loadData();
 </script>
 
 <!-- 
@@ -35,33 +64,22 @@
 	<meta name="description" content="" />
 </svelte:head> -->
 
-{#if !imageId}
-	<InlineNotification lowContrast hideCloseButton kind="error" title="No Project specified"
-	></InlineNotification>
-{/if}
-<div class="toolbar">
-	<Button size="small" kind="ghost" iconDescription="Previous Image" icon={ArrowLeft} />
-	{#await image then image}<h3>{image?.title}</h3>{/await}
-	<Button size="small" kind="ghost" iconDescription="Next Image" icon={ArrowRight} />
-</div>
-{#await image then image}
-	{#if image}
-		<QaInterface {image} />
-	{/if}
-{:catch error}
+{#if loading}
+	<p>Loading...</p>
+{:else if error}
 	<InlineNotification lowContrast hideCloseButton kind="error" title="Invalid Image ID">
 		<span slot="subtitle">
 			Image "<span style="font-family:monospace">{imageId}</span>" could not be loaded.
 		</span>
 	</InlineNotification>
-	{#if !isLoggedIn}
-		<section>
-			<p>
-				Note: you must be <a href="/login">logged in</a> to view projects.
-			</p>
-		</section>
-	{/if}
-{/await}
+{:else if image && project}
+	<div class="toolbar">
+		<Button size="small" kind="ghost" iconDescription="Previous Image" icon={ArrowLeft} />
+		{#await image then image}<h3>{image?.title}</h3>{/await}
+		<Button size="small" kind="ghost" iconDescription="Next Image" icon={ArrowRight} />
+	</div>
+	<QaInterface />
+{/if}
 
 <style>
 	.toolbar {

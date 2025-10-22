@@ -11,5 +11,9 @@
 {#if pb.authStore.isValid}
 	{@render children?.()}
 {:else}
-	<p>Not logged in</p>
+	<section>
+		<p>
+			You must be <a href="/login">logged in</a> to view projects.
+		</p>
+	</section>
 {/if}

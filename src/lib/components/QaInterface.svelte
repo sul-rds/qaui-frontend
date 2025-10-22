@@ -1,15 +1,10 @@
 <script>
 	import { ImageLoader, Loading } from 'carbon-components-svelte';
-
+	import { getContext } from 'svelte';
 	import Fields from '$components/Fields.svelte';
 
-	/**
-	 * @typedef {Object} QaInterfaceProps
-	 * @prop {import('../../lib/pocketbase/generated-types').ImagesResponse} image
-	 */
-
-	/** @type {QaInterfaceProps} */
-	let { image } = $props();
+	const imageData = getContext('imageData');
+	const image = imageData.image;
 </script>
 
 <article>
@@ -17,7 +12,6 @@
 		{#if image.data}
 			<Fields data={image.data} />
 		{/if}
-		<!-- <pre>{JSON.stringify(image.data, null, 2)}</pre> -->
 	</section>
 
 	<section class="image">
