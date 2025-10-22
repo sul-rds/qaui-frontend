@@ -1,17 +1,31 @@
 <script>
-	import { Button } from 'carbon-components-svelte';
+	import { Button, Tooltip } from 'carbon-components-svelte';
+
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import Subtract from 'carbon-icons-svelte/lib/Subtract.svelte';
+	import Information from 'carbon-icons-svelte/lib/Information.svelte';
 
+	import { tooltip } from '$lib/actions/tooltip';
 	import Fields from '$components/Fields.svelte';
 
 	/**
 	 * @typedef {Object} FieldsProps
 	 * @prop {Object} data
+	 * @prop {Object} schema
 	 */
 
 	/** @type {FieldsProps} */
-	let { data } = $props();
+	let { data, schema } = $props();
+
+	const getDescription = (schema, key) => {
+		console.log($state.snapshot(key));
+		if (schema && schema.type == 'object') {
+			console.log($state.snapshot(schema.properties[key]));
+			return schema.properties[key].description;
+		}
+
+		return '';
+	};
 </script>
 
 {#if data}
@@ -25,10 +39,19 @@
 					</div>
 					{key}
 				</summary>
-				<Fields data={value} />
+				<Fields data={value} schema={schema.properties?.[key]} />
 			</details>
 		{:else}
-			<p>{key}: {value}</p>
+			{@const description = getDescription(schema, key)}
+			<p>
+				{#if description}
+					<span class="i" use:tooltip={{ content: description }}><Information /></span>
+				{:else}
+					<span class="i"></span>
+				{/if}
+				{key}:
+				{value}
+			</p>
 		{/if}
 	{/each}
 {/if}
@@ -44,6 +67,22 @@
 		height: 100%;
 		display: flex;
 		align-items: center;
+	}
+
+	span.i {
+		cursor: help;
+		display: inline-block;
+		min-width: 0.75rem;
+		opacity: 0.5;
+
+		&:hover {
+			opacity: 1;
+		}
+
+		> :global(svg) {
+			width: 0.75rem;
+			height: 0.75rem;
+		}
 	}
 
 	details {

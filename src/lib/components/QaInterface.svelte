@@ -5,12 +5,14 @@
 
 	const imageData = getContext('imageData');
 	const image = imageData.image;
+	const data = imageData.image.data;
+	const schema = imageData.project.schema;
 </script>
 
 <article>
 	<section class="fields">
-		{#if image.data}
-			<Fields data={image.data} />
+		{#if data}
+			<Fields {data} {schema} />
 		{/if}
 	</section>
 
