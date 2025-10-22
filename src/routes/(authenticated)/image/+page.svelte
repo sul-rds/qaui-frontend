@@ -1,23 +1,19 @@
 <script>
 	/**
-	 * @typedef {import('../../lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
+	 * @typedef {import('../../../lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
 	 */
 
 	import { page } from '$app/state';
-	import { ImageLoader, InlineNotification } from 'carbon-components-svelte';
-	import { CheckmarkFilled, CheckmarkOutline } from 'carbon-icons-svelte';
+	import { Button, InlineNotification } from 'carbon-components-svelte';
+	import { ArrowRight, ArrowLeft } from 'carbon-icons-svelte';
 
-	import { pb, getProjectById, getImagesByProjectId, getImageById } from '$lib/pocketbase';
-	import { tooltip } from '$lib/actions/tooltip';
+	import { pb, getImageById } from '$lib/pocketbase';
 
 	import QaInterface from '$components/QaInterface.svelte';
 
 	let isLoggedIn = $state(pb.authStore.isValid);
-	// let project = $state();
 	/** @type {Promise<ImagesResponse>|ImagesResponse|undefined} */
 	let image = $state();
-	// /** @type {Promise<ImagesResponse[]>|ImagesResponse[]} */
-	// let projectImages = $state([]);
 
 	const imageId = page.url.searchParams.get('imageId');
 	if (imageId) {
@@ -43,6 +39,11 @@
 	<InlineNotification lowContrast hideCloseButton kind="error" title="No Project specified"
 	></InlineNotification>
 {/if}
+<div class="toolbar">
+	<Button size="small" kind="ghost" iconDescription="Previous Image" icon={ArrowLeft} />
+	{#await image then image}<h3>{image?.title}</h3>{/await}
+	<Button size="small" kind="ghost" iconDescription="Next Image" icon={ArrowRight} />
+</div>
 {#await image then image}
 	{#if image}
 		<QaInterface {image} />
@@ -63,34 +64,25 @@
 {/await}
 
 <style>
-	.thumbnails {
-		margin: 2rem;
+	.toolbar {
 		display: flex;
-		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: center;
 		gap: 1rem;
+		background-color: var(--primary);
+		margin-bottom: 1rem;
+		color: white;
+		border-radius: 0.5rem;
+		padding: 0.25rem 1rem;
+		margin-top: -1rem;
 
-		article {
-			position: relative;
+		:global(.bx--btn--ghost path) {
+			fill: white;
 		}
+	}
 
-		:global(img) {
-			width: fit-content !important;
-		}
-
-		p {
-			max-width: 150px;
-			text-overflow: ellipsis;
-			overflow: hidden;
-		}
-
-		.overlay {
-			position: absolute;
-			right: 0;
-			top: 0;
-			background-color: rgba(0, 0, 0, 0.5);
-			color: white;
-			padding: 0.5rem;
-			z-index: 9;
-		}
+	h3 {
+		margin: 0;
+		font-size: 1.5rem;
 	}
 </style>

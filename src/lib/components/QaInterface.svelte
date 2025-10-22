@@ -14,11 +14,6 @@
 
 <article>
 	<section class="fields">
-		<header>
-			<h3>{image.title}</h3>
-			Modified: {image.modified}
-			Approved: {image.approved}
-		</header>
 		{#if image.data}
 			<Fields data={image.data} />
 		{/if}

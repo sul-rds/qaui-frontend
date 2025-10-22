@@ -1,16 +1,15 @@
 <script>
 	/**
-	 * @typedef {import('../../lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
+	 * @typedef {import('../../../lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
 	 */
 
 	import { page } from '$app/state';
 	import { ImageLoader, InlineNotification } from 'carbon-components-svelte';
 	import { CheckmarkFilled, CheckmarkOutline } from 'carbon-icons-svelte';
 
-	import { pb, getProjectById, getImagesByProjectId } from '$lib/pocketbase';
+	import { getProjectById, getImagesByProjectId } from '$lib/pocketbase';
 	import { tooltip } from '$lib/actions/tooltip';
 
-	let isLoggedIn = $state(pb.authStore.isValid);
 	let project = $state();
 	/** @type {Promise<ImagesResponse[]>|ImagesResponse[]} */
 	let projectImages = $state([]);
@@ -78,14 +77,6 @@
 			Project "<span style="font-family:monospace">{projectId}</span>" could not be loaded.
 		</span>
 	</InlineNotification>
-
-	<section>
-		{#if !isLoggedIn}
-			<p>
-				Note: you must be <a href="/login">logged in</a> to view projects.
-			</p>
-		{/if}
-	</section>
 {/await}
 
 <style>

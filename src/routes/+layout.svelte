@@ -33,9 +33,7 @@
 </Header>
 
 <Content>
-	<section>
-		{@render children?.()}
-	</section>
+	{@render children?.()}
 </Content>
 
 <style>
@@ -48,13 +46,8 @@
 		#main-content {
 			height: calc(100vh - 3rem);
 			overflow: hidden;
-		}
-
-		section {
 			display: flex;
 			flex-direction: column;
-			height: 100%;
-			overflow: hidden;
 		}
 
 		a {
