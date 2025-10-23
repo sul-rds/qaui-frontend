@@ -42,6 +42,10 @@
 			padding-right: 0.5rem;
 		}
 
+		&.image {
+			overflow-y: auto;
+		}
+
 		&.image:not(:has(img)) {
 			place-content: center;
 			display: grid;
@@ -50,9 +54,5 @@
 
 	header {
 		margin-bottom: 1rem;
-	}
-
-	img {
-		max-width: 100%;
 	}
 </style>
