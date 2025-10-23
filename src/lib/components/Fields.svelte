@@ -1,11 +1,10 @@
 <script>
-	import { Button, Tooltip } from 'carbon-components-svelte';
+	import { Button } from 'carbon-components-svelte';
 
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import Subtract from 'carbon-icons-svelte/lib/Subtract.svelte';
-	import Information from 'carbon-icons-svelte/lib/Information.svelte';
 
-	import { tooltip } from '$lib/actions/tooltip';
+	import Field from '$components/Field.svelte';
 	import Fields from '$components/Fields.svelte';
 
 	/**
@@ -16,16 +15,6 @@
 
 	/** @type {FieldsProps} */
 	let { data, schema } = $props();
-
-	const getDescription = (schema, key) => {
-		console.log($state.snapshot(key));
-		if (schema && schema.type == 'object') {
-			console.log($state.snapshot(schema.properties[key]));
-			return schema.properties[key].description;
-		}
-
-		return '';
-	};
 </script>
 
 {#if data}
@@ -42,16 +31,7 @@
 				<Fields data={value} schema={schema.properties?.[key]} />
 			</details>
 		{:else}
-			{@const description = getDescription(schema, key)}
-			<p>
-				{#if description}
-					<span class="i" use:tooltip={{ content: description }}><Information /></span>
-				{:else}
-					<span class="i"></span>
-				{/if}
-				{key}:
-				{value}
-			</p>
+			<Field {key} {value} {schema} />
 		{/if}
 	{/each}
 {/if}
@@ -67,22 +47,6 @@
 		height: 100%;
 		display: flex;
 		align-items: center;
-	}
-
-	span.i {
-		cursor: help;
-		display: inline-block;
-		min-width: 0.75rem;
-		opacity: 0.5;
-
-		&:hover {
-			opacity: 1;
-		}
-
-		> :global(svg) {
-			width: 0.75rem;
-			height: 0.75rem;
-		}
 	}
 
 	details {
