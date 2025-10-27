@@ -7,18 +7,18 @@
 	import { Button, InlineNotification } from 'carbon-components-svelte';
 	import { ArrowRight, ArrowLeft } from 'carbon-icons-svelte';
 
-	import { getProjectById, getImageById } from '$lib/pocketbase';
+	import { getProjectById, getImageById, getImagesByProjectId } from '$lib/pocketbase';
 
 	import QaInterface from '$components/QaInterface.svelte';
-
-	const imageId = page.url.searchParams.get('imageId');
 
 	let image = $state();
 	let project = $state();
 	let loading = $state(true);
 	let error = $state();
+	let nextImage = $state();
+	let previousImage = $state();
 
-	async function loadData() {
+	async function loadData(/** @type {string} */ imageId) {
 		loading = true;
 		error = null;
 		try {
@@ -28,6 +28,10 @@
 			error = e;
 		} finally {
 			loading = false;
+			const projectImages = await getImagesByProjectId(image.project);
+			const currentIndex = projectImages.findIndex((i) => i.id === image.id);
+			previousImage = projectImages[currentIndex - 1];
+			nextImage = projectImages[currentIndex + 1];
 		}
 	}
 
@@ -47,7 +51,7 @@
 		reload: loadData
 	});
 
-	loadData();
+	loadData(page.url.searchParams.get('imageId') || '');
 </script>
 
 <!-- 
@@ -74,9 +78,25 @@
 	</InlineNotification>
 {:else if image && project}
 	<div class="toolbar">
-		<Button size="small" kind="ghost" iconDescription="Previous Image" icon={ArrowLeft} />
+		<Button
+			size="small"
+			kind="ghost"
+			iconDescription="Previous Image"
+			icon={ArrowLeft}
+			disabled={!previousImage}
+			href="image?imageId={previousImage?.id}"
+			onclick={() => loadData(previousImage.id)}
+		/>
 		{#await image then image}<h3>{image?.title}</h3>{/await}
-		<Button size="small" kind="ghost" iconDescription="Next Image" icon={ArrowRight} />
+		<Button
+			size="small"
+			kind="ghost"
+			iconDescription="Next Image"
+			icon={ArrowRight}
+			disabled={!nextImage}
+			href="image?imageId={nextImage?.id}"
+			onclick={() => loadData(nextImage.id)}
+		/>
 	</div>
 	<QaInterface />
 {/if}
