@@ -1,5 +1,7 @@
 /**
  * @typedef {import('./generated-types').TypedPocketBase} TypedPocketBase
+ * @typedef {import('./generated-types').ImagesResponse} ImagesResponse
+ * @typedef {import('./generated-types').ProjectsRecord} ProjectsRecord
  */
 
 import PocketBase from 'pocketbase';
@@ -42,14 +44,39 @@ export async function login(email, password) {
 	}
 }
 
-export async function getProjectById(/** @type {string} */ id) {
+/**
+ * Retrieves a single project record from the PocketBase instance by its ID.
+ * @param {string} id - The ID of the project to retrieve.
+ * @returns {Promise<ProjectsRecord>} The requested project record.
+ */
+export async function getProjectById(id) {
 	return pb.collection('projects').getOne(id);
 }
 
-export async function getImagesByProjectId(/** @type {string} */ id) {
+/**
+ * Retrieves all image records associated with a given project ID.
+ * @param {string} id - The ID of the project to retrieve image records for.
+ * @returns {Promise<ImagesResponse[]>} The retrieved image records.
+ */
+export async function getImagesByProjectId(id) {
 	return pb.collection('images').getFullList({ filter: `project="${id}"` });
 }
 
-export async function getImageById(/** @type {string} */ id) {
+/**
+ * Retrieves a single image record from the PocketBase instance by its ID.
+ * @param {string} id - The ID of the image to retrieve.
+ * @returns {Promise<ImagesResponse>} The retrieved image record.
+ */
+export async function getImageById(id) {
 	return pb.collection('images').getOne(id);
+}
+
+/**
+ * Updates an image record with new data.
+ * @param {string} id - The image ID to update
+ * @param {Partial<ImagesResponse['data']>} data - The data to update
+ * @returns {Promise<ImagesResponse>} The updated image record
+ */
+export async function updateImage(id, data) {
+	return pb.collection('images').update(id, data);
 }
