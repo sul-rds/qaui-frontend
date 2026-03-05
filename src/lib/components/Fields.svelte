@@ -28,7 +28,10 @@
 					</div>
 					{key}
 				</summary>
-				<Fields data={value} schema={schema.properties?.[key]} />
+				<Fields
+					data={value}
+					schema={Array.isArray(data) ? schema.items : schema.properties?.[key]}
+				/>
 			</details>
 		{:else}
 			<Field {key} {value} {schema} />
