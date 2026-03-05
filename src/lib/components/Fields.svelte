@@ -18,7 +18,7 @@
 </script>
 
 {#if data}
-	{#each Object.entries(data) as [key, value]}
+	{#each Object.entries(data) as [key, value] (key)}
 		{#if typeof value === 'object' && value !== null}
 			<details open>
 				<summary>
