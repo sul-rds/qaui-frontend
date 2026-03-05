@@ -73,7 +73,8 @@
 {:else if error}
 	<InlineNotification lowContrast hideCloseButton kind="error" title="Invalid Image ID">
 		<span slot="subtitle">
-			Image "<span style="font-family:monospace">{imageId}</span>" could not be loaded.
+			Image "<span style="font-family:monospace">{page.url.searchParams.get('imageId')}</span>"
+			could not be loaded.
 		</span>
 	</InlineNotification>
 {:else if image && project}
