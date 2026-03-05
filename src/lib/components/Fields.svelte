@@ -7,19 +7,33 @@
 	import Field from '$components/Field.svelte';
 	import Fields from '$components/Fields.svelte';
 
+	/** @typedef {import('json-schema').JSONSchema7} JSONSchema7 */
+
 	/**
 	 * @typedef {Object} FieldsProps
 	 * @prop {Object} data
-	 * @prop {Object} schema
+	 * @prop {JSONSchema7} schema
 	 */
 
 	/** @type {FieldsProps} */
 	let { data, schema } = $props();
+
+	const /** @type {string[]} */ orderedKeys = [];
+	for (const key in schema.properties) {
+		orderedKeys.push(key);
+	}
+
+	// Add any remaining data keys that weren't in the schema
+	for (const key in data) {
+		if (!orderedKeys.includes(key)) {
+			orderedKeys.push(key);
+		}
+	}
 </script>
 
 {#if data}
-	{#each Object.entries(data) as [key, value] (key)}
-		{#if typeof value === 'object' && value !== null}
+	{#each orderedKeys as key (key)}
+		{#if typeof data[key] === 'object' && data[key] !== null}
 			<details open>
 				<summary>
 					<div class="overlay">
@@ -29,12 +43,12 @@
 					{key}
 				</summary>
 				<Fields
-					data={value}
+					data={data[key]}
 					schema={Array.isArray(data) ? schema.items : schema.properties?.[key]}
 				/>
 			</details>
 		{:else}
-			<Field {key} {value} {schema} />
+			<Field {key} value={data[key]} {schema} />
 		{/if}
 	{/each}
 {/if}
