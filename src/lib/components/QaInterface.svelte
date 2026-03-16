@@ -5,14 +5,17 @@
 
 	const imageData = getContext('imageData');
 	const image = imageData.image;
-	const data = imageData.image.data;
+	const committedData = imageData.image.data;
+	const originalData = imageData.image.original_data;
 	const schema = imageData.project.schema;
+
+	let data = $state(structuredClone($state.snapshot(committedData)));
 </script>
 
 <article>
 	<section class="fields">
 		{#if data}
-			<Fields {data} {schema} />
+			<Fields bind:data {originalData} {schema} />
 		{/if}
 	</section>
 

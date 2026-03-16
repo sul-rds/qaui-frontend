@@ -11,12 +11,13 @@
 
 	/**
 	 * @typedef {Object} FieldsProps
-	 * @prop {Object} data
+	 * @prop {{ [key: string]: any }} data
+	 * @prop {{ [key: string]: any }} originalData
 	 * @prop {JSONSchema7} schema
 	 */
 
 	/** @type {FieldsProps} */
-	let { data, schema } = $props();
+	let { data = $bindable(), originalData, schema } = $props();
 
 	const /** @type {string[]} */ orderedKeys = [];
 	for (const key in schema.properties) {
@@ -43,12 +44,13 @@
 					{key}
 				</summary>
 				<Fields
-					data={data[key]}
+					bind:data={data[key]}
+					originalData={originalData[key]}
 					schema={Array.isArray(data) ? schema.items : schema.properties?.[key]}
 				/>
 			</details>
 		{:else}
-			<Field {key} value={data[key]} {schema} />
+			<Field {key} bind:value={data[key]} originalValue={originalData?.[key]} {schema} />
 		{/if}
 	{/each}
 {/if}

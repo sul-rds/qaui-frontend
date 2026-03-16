@@ -9,11 +9,12 @@
 	 * @typedef {Object} FieldsProps
 	 * @prop {string} key
 	 * @prop {Object} value
+	 * @prop {Object} originalValue
 	 * @prop {JSONSchema7} schema
 	 */
 
 	/** @type {FieldsProps} */
-	let { key, value, schema } = $props();
+	let { key, value = $bindable(), originalValue, schema } = $props();
 
 	let input = $state();
 
@@ -27,15 +28,23 @@
 			return typeof prop === 'object' && prop ? prop.description : undefined;
 		}
 	};
-
 	const description = getDescription(schema, key);
+
+	const selectText = (/** @type {HTMLSpanElement} */ el) => {
+		const range = document.createRange();
+		range.selectNodeContents(el);
+		const selection = window.getSelection();
+		if (selection === null) return;
+		selection.removeAllRanges();
+		selection.addRange(range);
+	};
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
 	class="field"
-	onclick={(e) => {
+	onclick={() => {
 		if (!input) return;
 		setTimeout(() => input.focus());
 	}}
@@ -47,7 +56,14 @@
 	{/if}
 	{key}:
 	{#if typeof value === 'string'}
-		<span class="value" contenteditable bind:this={input}>{value}</span>
+		<span
+			class="value"
+			class:edited={value !== originalValue}
+			contenteditable
+			bind:this={input}
+			bind:textContent={value}
+			onfocus={(evt) => selectText(/** @type {HTMLSpanElement} */ (evt.target))}
+		></span>
 	{:else}
 		{value}
 	{/if}
@@ -79,9 +95,14 @@
 	}
 
 	span.value {
-		background: rgba(255, 255, 255, 0.4);
+		background-color: rgba(255, 255, 255, 0.4);
 		flex: 1 1 0px;
 		margin: -0.25rem 0 -0.25rem 0.5rem;
 		padding: 0.25rem;
+
+		&.edited {
+			background-color: hsl(from var(--primary) h s 85%);
+			outline: 2px dotted var(--primary);
+		}
 	}
 </style>
