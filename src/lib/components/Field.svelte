@@ -1,5 +1,7 @@
 <script>
+	import { Button } from 'carbon-components-svelte';
 	import Information from 'carbon-icons-svelte/lib/Information.svelte';
+	import Undo from 'carbon-icons-svelte/lib/Undo.svelte';
 
 	import { tooltip } from '$lib/actions/tooltip';
 
@@ -70,7 +72,16 @@
 			bind:textContent={value}
 			onfocus={(/** @type {FocusEvent} */ evt) =>
 				selectText(/** @type {HTMLSpanElement} */ (evt.target))}
-		></span>
+		>
+		</span>
+		{#if modified}
+			<Button
+				iconDescription="Revert"
+				icon={Undo}
+				size="small"
+				onclick={() => (value = originalValue)}
+			/>
+		{/if}
 	{:else}
 		{value}
 	{/if}
@@ -99,6 +110,7 @@
 		gap: 0.25rem;
 		margin: 0.15rem 0;
 		padding: 0.25rem 0;
+		align-items: stretch;
 	}
 
 	span.value {
@@ -111,5 +123,10 @@
 			background-color: hsl(from var(--primary) h s 85%);
 			outline: 2px dotted var(--primary);
 		}
+	}
+
+	:global(.bx--btn--sm) {
+		margin: -0.25rem 0 -0.25rem;
+		min-height: unset;
 	}
 </style>
