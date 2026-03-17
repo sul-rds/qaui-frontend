@@ -11,7 +11,7 @@
 		getImagesByProjectId,
 		updateImageRecord
 	} from '$lib/pocketbase';
-	import { debounce } from '$lib/utils';
+	import { debounce, deepEqual } from '$lib/utils';
 
 	import QaInterface from '$components/QaInterface.svelte';
 
@@ -40,15 +40,25 @@
 	}
 
 	let initialized = false;
-	let data = $derived(structuredClone($state.snapshot(image?.data)));
+	// eslint-disable-next-line svelte/prefer-writable-derived
+	let data = $state({});
 
 	const debouncedSave = debounce(() => {
-		updateImageRecord(image.id, { data: $state.snapshot(data) });
+		console.log('Saving...');
+		const modified = !deepEqual($state.snapshot(data), $state.snapshot(image.original_data));
+		updateImageRecord(image.id, {
+			data: $state.snapshot(data),
+			modified: modified
+		});
 	}, 1000);
 
 	$effect(() => {
+		data = structuredClone($state.snapshot(image?.data));
+	});
+
+	$effect(() => {
 		JSON.stringify(data);
-		if (!initialized) {
+		if (!initialized && data && deepEqual($state.snapshot(data), $state.snapshot(image.data))) {
 			initialized = true;
 			return;
 		}
@@ -59,20 +69,6 @@
 
 	loadData(page.url.searchParams.get('imageId') || '');
 </script>
-
-<!-- 
-<svelte:head>
-	{#if !imageId}
-		<title>No Project Specified</title>
-	{:else}
-		{#await project then project}
-			<title>{project?.name}</title>
-		{:catch error}
-			<title>Invalid Project ID</title>
-		{/await}
-	{/if}
-	<meta name="description" content="" />
-</svelte:head> -->
 
 {#if loading}
 	<p>Loading...</p>
@@ -105,12 +101,7 @@
 			onclick={() => loadData(nextImage.id)}
 		/>
 	</div>
-	<QaInterface
-		{image}
-		bind:data={image.data}
-		originalData={image.original_data}
-		schema={project.schema}
-	/>
+	<QaInterface {image} bind:data originalData={image.original_data} schema={project.schema} />
 {/if}
 
 <style>
