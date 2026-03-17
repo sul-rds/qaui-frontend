@@ -1,13 +1,17 @@
 <script>
 	/**
-	 * @typedef {import('../../../lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
+	 * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
 	 */
-	import { setContext } from 'svelte';
 	import { page } from '$app/state';
 	import { Button, InlineNotification } from 'carbon-components-svelte';
 	import { ArrowRight, ArrowLeft } from 'carbon-icons-svelte';
-
-	import { getProjectById, getImageById, getImagesByProjectId } from '$lib/pocketbase';
+	import {
+		getProjectById,
+		getImageById,
+		getImagesByProjectId,
+		updateImageRecord
+	} from '$lib/pocketbase';
+	import { debounce } from '$lib/utils';
 
 	import QaInterface from '$components/QaInterface.svelte';
 
@@ -35,20 +39,22 @@
 		}
 	}
 
-	setContext('imageData', {
-		get image() {
-			return image;
-		},
-		get project() {
-			return project;
-		},
-		get loading() {
-			return loading;
-		},
-		get error() {
-			return error;
-		},
-		reload: loadData
+	let initialized = false;
+	let data = $derived(structuredClone($state.snapshot(image?.data)));
+
+	const debouncedSave = debounce(() => {
+		updateImageRecord(image.id, { data: $state.snapshot(data) });
+	}, 1000);
+
+	$effect(() => {
+		JSON.stringify(data);
+		if (!initialized) {
+			initialized = true;
+			return;
+		}
+		debouncedSave();
+
+		return () => debouncedSave.cancel();
 	});
 
 	loadData(page.url.searchParams.get('imageId') || '');
@@ -99,7 +105,12 @@
 			onclick={() => loadData(nextImage.id)}
 		/>
 	</div>
-	<QaInterface />
+	<QaInterface
+		{image}
+		bind:data={image.data}
+		originalData={image.original_data}
+		schema={project.schema}
+	/>
 {/if}
 
 <style>
