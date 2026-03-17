@@ -17,6 +17,7 @@
 	let { key, value = $bindable(), originalValue, schema } = $props();
 
 	let input = $state();
+	let modified = $derived(value !== originalValue);
 
 	/**
 	 * @param {JSONSchema7} schema
@@ -58,11 +59,17 @@
 	{#if typeof value === 'string'}
 		<span
 			class="value"
-			class:edited={value !== originalValue}
+			class:modified
 			contenteditable
+			use:tooltip={{
+				content: `Original value: ${originalValue}`,
+				placement: 'top-start',
+				enabled: modified
+			}}
 			bind:this={input}
 			bind:textContent={value}
-			onfocus={(evt) => selectText(/** @type {HTMLSpanElement} */ (evt.target))}
+			onfocus={(/** @type {FocusEvent} */ evt) =>
+				selectText(/** @type {HTMLSpanElement} */ (evt.target))}
 		></span>
 	{:else}
 		{value}
@@ -100,7 +107,7 @@
 		margin: -0.25rem 0 -0.25rem 0.5rem;
 		padding: 0.25rem;
 
-		&.edited {
+		&.modified {
 			background-color: hsl(from var(--primary) h s 85%);
 			outline: 2px dotted var(--primary);
 		}
