@@ -3,7 +3,7 @@
 	 * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
 	 */
 	import { page } from '$app/state';
-	import { Button, InlineNotification } from 'carbon-components-svelte';
+	import { Button, InlineNotification, Loading } from 'carbon-components-svelte';
 	import { ArrowRight, ArrowLeft } from 'carbon-icons-svelte';
 	import {
 		getProjectById,
@@ -18,6 +18,7 @@
 	let image = $state();
 	let project = $state();
 	let loading = $state(true);
+	let saving = $state(false);
 	let error = $state();
 	let nextImage = $state();
 	let previousImage = $state();
@@ -49,8 +50,8 @@
 		updateImageRecord(image.id, {
 			data: $state.snapshot(data),
 			modified: modified
-		});
-	}, 1000);
+		}).then(() => (saving = false));
+	}, 500);
 
 	$effect(() => {
 		data = structuredClone($state.snapshot(image?.data));
@@ -58,12 +59,13 @@
 
 	$effect(() => {
 		JSON.stringify(data);
-		if (!initialized && data && deepEqual($state.snapshot(data), $state.snapshot(image.data))) {
+		if (!data) return;
+		if (!initialized) {
 			initialized = true;
 			return;
 		}
+		saving = true;
 		debouncedSave();
-
 		return () => debouncedSave.cancel();
 	});
 
@@ -90,7 +92,10 @@
 			href="image?imageId={previousImage?.id}"
 			onclick={() => loadData(previousImage.id)}
 		/>
-		{#await image then image}<h3>{image?.title}</h3>{/await}
+		<div class="toolbar-center">
+			{#await image then image}<h3>{image?.title}</h3>{/await}
+			<div class:hidden={!saving}><Loading withOverlay={false} small /></div>
+		</div>
 		<Button
 			size="small"
 			kind="ghost"
@@ -119,6 +124,16 @@
 
 		:global(.bx--btn--ghost path) {
 			fill: white;
+		}
+
+		.toolbar-center {
+			display: flex;
+			gap: 1rem;
+			align-items: center;
+		}
+
+		.hidden {
+			visibility: hidden;
 		}
 	}
 
