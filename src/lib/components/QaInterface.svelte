@@ -1,6 +1,8 @@
 <script>
 	import { ImageLoader, Loading } from 'carbon-components-svelte';
 	import { getContext } from 'svelte';
+	import { debounce } from '$lib/utils';
+	import { updateImageRecord } from '$lib/pocketbase';
 	import Fields from '$components/Fields.svelte';
 
 	const imageData = getContext('imageData');
@@ -9,7 +11,23 @@
 	const originalData = imageData.image.original_data;
 	const schema = imageData.project.schema;
 
+	let initialized = false;
 	let data = $state(structuredClone($state.snapshot(committedData)));
+
+	const debouncedSave = debounce(() => {
+		updateImageRecord(image.id, { data: $state.snapshot(data) });
+	}, 1000);
+
+	$effect(() => {
+		JSON.stringify(data);
+		if (!initialized) {
+			initialized = true;
+			return;
+		}
+		debouncedSave();
+
+		return () => debouncedSave.cancel();
+	});
 </script>
 
 <article>

@@ -74,9 +74,9 @@ export async function getImageById(id) {
 /**
  * Updates an image record with new data.
  * @param {string} id - The image ID to update
- * @param {Partial<ImagesResponse['data']>} data - The data to update
+ * @param {Partial<ImagesResponse>} data - The data to update
  * @returns {Promise<ImagesResponse>} The updated image record
  */
-export async function updateImage(id, data) {
+export async function updateImageRecord(id, data) {
 	return pb.collection('images').update(id, data);
 }
