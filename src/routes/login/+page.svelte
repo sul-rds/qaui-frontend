@@ -3,6 +3,7 @@
 
 	import { pb, login } from '$lib/pocketbase';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let isLoggedIn = $state(pb.authStore.isValid);
 	let email = $state('');
@@ -17,7 +18,7 @@
 		try {
 			const loginResult = await login(email, password);
 			if (loginResult.success) {
-				goto('/');
+				goto(resolve('/'));
 			} else {
 				error = loginResult.error || 'Unknown error';
 				isLoggedIn = pb.authStore.isValid;
@@ -32,7 +33,7 @@
 
 	async function doLogout() {
 		await pb.authStore.clear();
-		goto('/login');
+		goto(resolve('/login'));
 		isLoggedIn = pb.authStore.isValid;
 		error = 'Successfully logged out';
 	}

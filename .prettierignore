@@ -6,4 +6,5 @@ bun.lock
 bun.lockb
 
 # Miscellaneous
+src/lib/pocketbase/generated-types.ts
 /static/

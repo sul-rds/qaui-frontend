@@ -1,4 +1,5 @@
 <script>
+	import { resolve } from '$app/paths';
 	import { pb } from '$lib/pocketbase';
 	let { children } = $props();
 </script>
@@ -13,7 +14,7 @@
 {:else}
 	<section>
 		<p>
-			You must be <a href="/login">logged in</a> to view projects.
+			You must be <a href={resolve('/login')}>logged in</a> to view projects.
 		</p>
 	</section>
 {/if}

@@ -4,23 +4,16 @@
 
 	import { pb } from '$lib/pocketbase';
 
-	/**
-	 * @typedef {Object} ProjectsProps
-	 */
-
-	/** @type {ProjectsProps} */
-	let {} = $props();
-
 	const projects = pb.collection('projects').getFullList();
 </script>
 
 {#await projects then projects}
 	<section>
-		{#each projects as project}
+		{#each projects as project (project)}
+			{console.log(project)}
 			<ClickableTile light href="project/?projectId={project.id}">
 				<h3>{project.name} <ArrowRight size={32} /></h3>
 				<p>{project.description}</p>
-				{#if project.link}<a href={project.link}>Link</a>{/if}
 			</ClickableTile>
 		{/each}
 	</section>

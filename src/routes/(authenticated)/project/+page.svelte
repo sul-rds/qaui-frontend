@@ -1,8 +1,9 @@
 <script>
 	/**
-	 * @typedef {import('../../../lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
+	 * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
 	 */
 
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { ImageLoader, InlineNotification } from 'carbon-components-svelte';
 	import { CheckmarkFilled, CheckmarkOutline } from 'carbon-icons-svelte';
@@ -47,7 +48,7 @@
 
 		<section class="thumbnails">
 			{#each images as image (image.id)}
-				<a href="image/?imageId={image.id}">
+				<a href="{resolve('/image')}?imageId={image.id}">
 					<article>
 						<ImageLoader
 							fadeIn
