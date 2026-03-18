@@ -6,6 +6,9 @@
 	import { Button, InlineNotification, Loading } from 'carbon-components-svelte';
 	import ArrowLeft from 'carbon-icons-svelte/lib/ArrowLeft.svelte';
 	import ArrowRight from 'carbon-icons-svelte/lib/ArrowRight.svelte';
+
+	import { tooltip } from '$/lib/actions/tooltip';
+	import { Approved, Flagged, Modified } from '$lib/icons';
 	import {
 		getProjectById,
 		getImageById,
@@ -47,10 +50,10 @@
 
 	const debouncedSave = debounce(() => {
 		console.log('Saving...');
-		const modified = !deepEqual($state.snapshot(data), $state.snapshot(image.original_data));
+		image.modified = !deepEqual($state.snapshot(data), $state.snapshot(image.original_data));
 		updateImageRecord(image.id, {
 			data: $state.snapshot(data),
-			modified: modified
+			modified: image.modified
 		}).then(() => (saving = false));
 	}, 500);
 
@@ -104,8 +107,17 @@
 			onclick={() => loadData(previousImage.id)}
 		/>
 		<div class="toolbar-center">
-			{#await image then image}<h3>{image?.title}</h3>{/await}
 			<div class:hidden={!saving}><Loading withOverlay={false} small /></div>
+			{#await image then image}<h3>{image?.title}</h3>{/await}
+			<div class="status-icons">
+				<span class:hidden={!image.flagged} use:tooltip={{ content: 'Flagged' }}><Flagged /></span>
+				<span class:hidden={!image.modified} use:tooltip={{ content: 'Modified' }}
+					><Modified /></span
+				>
+				<span class:hidden={!image.approved} use:tooltip={{ content: 'Approved' }}
+					><Approved /></span
+				>
+			</div>
 		</div>
 		<Button
 			size="small"
@@ -151,6 +163,11 @@
 			display: flex;
 			gap: 1rem;
 			align-items: center;
+		}
+
+		.status-icons {
+			display: flex;
+			gap: 0.5rem;
 		}
 
 		.hidden {
