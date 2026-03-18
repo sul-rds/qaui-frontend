@@ -53,6 +53,16 @@
 		}).then(() => (saving = false));
 	}, 500);
 
+	const toggleApproved = () => {
+		image.approved = !image.approved;
+		updateImageRecord(image.id, { approved: image.approved });
+	};
+
+	const toggleFlagged = () => {
+		image.flagged = !image.flagged;
+		updateImageRecord(image.id, { flagged: image.flagged });
+	};
+
 	$effect(() => {
 		data = structuredClone($state.snapshot(image?.data));
 	});
@@ -106,7 +116,14 @@
 			onclick={() => loadData(nextImage.id)}
 		/>
 	</div>
-	<QaInterface {image} bind:data originalData={image.original_data} schema={project.schema} />
+	<QaInterface
+		{image}
+		bind:data
+		originalData={image.original_data}
+		schema={project.schema}
+		{toggleApproved}
+		{toggleFlagged}
+	/>
 {/if}
 
 <style>

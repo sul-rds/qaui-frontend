@@ -96,6 +96,7 @@ export type ImagesRecord<Tdata = unknown, Toriginal_data = unknown> = {
 	approved?: boolean
 	created?: IsoDateString
 	data?: null | Tdata
+	flagged?: boolean
 	id: string
 	image_blob?: string
 	image_url?: string
@@ -106,12 +107,13 @@ export type ImagesRecord<Tdata = unknown, Toriginal_data = unknown> = {
 	updated?: IsoDateString
 }
 
-export type ProjectsRecord = {
+export type ProjectsRecord<Tschema = unknown> = {
 	created?: IsoDateString
 	description?: HTMLString
 	id: string
 	link?: string
 	name?: string
+	schema?: null | Tschema
 	updated?: IsoDateString
 }
 
@@ -135,7 +137,7 @@ export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemF
 export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemFields<Texpand>
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
 export type ImagesResponse<Tdata = unknown, Toriginal_data = unknown, Texpand = unknown> = Required<ImagesRecord<Tdata, Toriginal_data>> & BaseSystemFields<Texpand>
-export type ProjectsResponse<Texpand = unknown> = Required<ProjectsRecord> & BaseSystemFields<Texpand>
+export type ProjectsResponse<Tschema = unknown, Texpand = unknown> = Required<ProjectsRecord<Tschema>> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 
 // Types containing all Records and Responses, useful for creating typing helper functions
