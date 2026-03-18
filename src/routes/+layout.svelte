@@ -4,10 +4,7 @@
 		HeaderUtilities,
 		HeaderActionLink,
 		SkipToContent,
-		Content,
-		Grid,
-		Row,
-		Column
+		Content
 	} from 'carbon-components-svelte';
 	import UserAvatarFilledAlt from 'carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte';
 

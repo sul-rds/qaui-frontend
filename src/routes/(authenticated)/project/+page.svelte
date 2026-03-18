@@ -6,7 +6,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { ImageLoader, InlineNotification } from 'carbon-components-svelte';
-	import { CheckmarkFilled, CheckmarkOutline } from 'carbon-icons-svelte';
+	import { Approved, Modified, Flagged } from '$lib/icons';
 
 	import { getProjectById, getImagesByProjectId } from '$lib/pocketbase';
 	import { tooltip } from '$lib/actions/tooltip';
@@ -43,6 +43,7 @@
 	<h3>{project?.name}</h3>
 	{#await projectImages then images}
 		Images: {images.length}
+		Flagged: {images.filter((image) => image.flagged).length}
 		Modified: {images.filter((image) => image.modified).length}
 		Approved: {images.filter((image) => image.approved).length}
 
@@ -59,11 +60,14 @@
 
 						{#if image.modified || image.approved}
 							<p class="overlay">
+								{#if image.flagged}
+									<span use:tooltip={{ content: 'Flagged' }}><Flagged /></span>
+								{/if}
 								{#if image.modified}
-									<span use:tooltip={{ content: 'Modified' }}><CheckmarkOutline /></span>
+									<span use:tooltip={{ content: 'Modified' }}><Modified /></span>
 								{/if}
 								{#if image.approved}
-									<span use:tooltip={{ content: 'Approved' }}><CheckmarkFilled /></span>
+									<span use:tooltip={{ content: 'Approved' }}><Approved /></span>
 								{/if}
 							</p>
 						{/if}

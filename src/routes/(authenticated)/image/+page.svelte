@@ -4,7 +4,8 @@
 	 */
 	import { page } from '$app/state';
 	import { Button, InlineNotification, Loading } from 'carbon-components-svelte';
-	import { ArrowRight, ArrowLeft } from 'carbon-icons-svelte';
+	import ArrowLeft from 'carbon-icons-svelte/lib/ArrowLeft.svelte';
+	import ArrowRight from 'carbon-icons-svelte/lib/ArrowRight.svelte';
 	import {
 		getProjectById,
 		getImageById,
@@ -135,12 +136,15 @@
 		background-color: var(--primary);
 		margin-bottom: 1rem;
 		color: white;
-		border-radius: 0.5rem;
 		padding: 0.25rem 1rem;
 		margin-top: -1rem;
 
 		:global(.bx--btn--ghost path) {
 			fill: white;
+		}
+
+		:global(.bx--btn--ghost:not([disabled]):hover path) {
+			fill: var(--primary);
 		}
 
 		.toolbar-center {
