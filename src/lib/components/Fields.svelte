@@ -46,7 +46,9 @@
 				<Fields
 					bind:data={data[key]}
 					originalData={originalData[key]}
-					schema={Array.isArray(data) ? schema.items : schema.properties?.[key]}
+					schema={Array.isArray(data)
+						? /** @type {JSONSchema7} */ (schema.items)
+						: /** @type {JSONSchema7} */ (schema.properties?.[key])}
 				/>
 			</details>
 		{:else}
