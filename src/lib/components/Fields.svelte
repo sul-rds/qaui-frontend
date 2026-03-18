@@ -66,16 +66,14 @@
 		height: 100%;
 		display: flex;
 		align-items: center;
+
+		display: none;
 	}
 
 	details {
 		padding: 1rem;
 		background: rgba(0, 0, 0, 0.1);
 		border: 1px solid rgba(0, 0, 0, 1);
-
-		& + details {
-			border-top: none;
-		}
 	}
 
 	summary {

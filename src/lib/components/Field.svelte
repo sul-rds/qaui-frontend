@@ -105,18 +105,21 @@
 	}
 
 	div.field {
+		align-items: stretch;
 		display: flex;
+		flex-wrap: wrap;
 		font-size: 1rem;
-		gap: 0.25rem;
+		gap: 0.5rem 0.25rem;
 		margin: 0.15rem 0;
 		padding: 0.25rem 0;
-		align-items: stretch;
 	}
 
 	span.value {
 		background-color: rgba(255, 255, 255, 0.4);
 		flex: 1 1 0px;
+		line-height: 1.25;
 		margin: -0.25rem 0 -0.25rem 0.5rem;
+		min-width: 50%;
 		padding: 0.25rem;
 
 		&.modified {
