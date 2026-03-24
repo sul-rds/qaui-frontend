@@ -6,8 +6,10 @@
 
 import PocketBase from 'pocketbase';
 
+import { pbApiUrl } from '$lib/config';
+
 /** @type {TypedPocketBase} */
-export const pb = new PocketBase('http://localhost:8090');
+export const pb = new PocketBase(pbApiUrl);
 
 /**
  * Attempts to log in to the PocketBase instance using the provided email and password.
