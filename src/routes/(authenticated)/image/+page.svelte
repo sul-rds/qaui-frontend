@@ -129,6 +129,7 @@
 			onclick={() => loadData(nextImage.id)}
 		/>
 	</div>
+	<p>Original Data Source: {image.data_source}</p>
 	<QaInterface
 		{image}
 		bind:data
@@ -141,15 +142,14 @@
 
 <style>
 	.toolbar {
-		display: flex;
-		justify-content: space-between;
 		align-items: center;
-		gap: 1rem;
 		background-color: var(--primary);
-		margin-bottom: 1rem;
 		color: white;
-		padding: 0.25rem 1rem;
+		display: flex;
+		gap: 1rem;
+		justify-content: space-between;
 		margin-top: -1rem;
+		padding: 0.25rem 1rem;
 
 		:global(.bx--btn--ghost path) {
 			fill: white;
@@ -160,9 +160,9 @@
 		}
 
 		.toolbar-center {
+			align-items: center;
 			display: flex;
 			gap: 1rem;
-			align-items: center;
 		}
 
 		.status-icons {
@@ -175,8 +175,12 @@
 		}
 	}
 
+	p {
+		padding-left: 1rem;
+	}
+
 	h3 {
-		margin: 0;
 		font-size: 1.5rem;
+		margin: 0;
 	}
 </style>

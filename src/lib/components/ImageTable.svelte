@@ -23,6 +23,7 @@
 	const headers = [
 		{ key: 'image', value: 'Image', empty: false },
 		{ key: 'title', value: 'Title', empty: false },
+		{ key: 'data_source', value: 'Data Source', empty: false },
 		{
 			key: 'modified',
 			value: 'Modified',
@@ -125,15 +126,23 @@
 	}
 
 	:global(.images-table tr > :is(:nth-child(1))) {
-		width: calc((100% - 3 * 60px) / 2);
+		width: calc((100% - 200px - 3 * 60px) / 2);
 	}
 
 	:global(.images-table tr > :is(:nth-child(2))) {
-		width: calc((100% - 3 * 60px) / 2);
+		width: calc((100% - 200px - 3 * 60px) / 2);
 	}
 
-	:global(.images-table tr > :is(:nth-child(3), :nth-child(4), :nth-child(5))) {
+	:global(.images-table tr > :is(:nth-child(3))) {
+		width: 200px;
+	}
+
+	:global(.images-table tr > :is(:nth-child(4), :nth-child(5), :nth-child(6))) {
 		width: 60px;
+
+		:global(.bx--table-sort) {
+			padding-left: 0.5rem;
+		}
 	}
 
 	:global(.images-table td) {

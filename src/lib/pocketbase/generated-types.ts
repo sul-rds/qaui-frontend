@@ -96,6 +96,7 @@ export type ImagesRecord<Tdata = unknown, Toriginal_data = unknown> = {
 	approved?: boolean
 	created?: IsoDateString
 	data?: null | Tdata
+	data_source?: string
 	flagged?: boolean
 	id: string
 	image_blob?: string
