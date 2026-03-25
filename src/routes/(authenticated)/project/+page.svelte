@@ -45,7 +45,7 @@
 
 {#await project then project}
 	<h3>{project?.name}</h3>
-	<Toggle hideLabel labelA="Table" labelB="Grid" bind:toggled={display} />
+	<!-- <Toggle hideLabel labelA="Table" labelB="Grid" bind:toggled={display} /> -->
 	{#await projectImages then images}
 		{#if display}
 			<ImageGrid {images} />
