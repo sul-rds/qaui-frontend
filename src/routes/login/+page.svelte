@@ -80,14 +80,19 @@
 	}
 
 	section {
+		align-items: flex-start;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 		max-width: 500px;
 	}
 
 	form {
+		align-items: flex-end;
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
-		align-items: flex-end;
+		width: 100%;
 
 		& :global(.bx--text-input-wrapper) {
 			width: 100%;
