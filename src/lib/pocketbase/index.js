@@ -20,29 +20,18 @@ export const pb = new PocketBase(pbApiUrl);
  */
 export async function login(email, password) {
 	try {
-		// First, try to authenticate as a regular user
 		const authData = await pb.collection('users').authWithPassword(email, password);
 		return {
 			success: true,
 			type: 'user',
 			data: authData
 		};
-	} catch {
-		// If user auth fails, try admin authentication
-		try {
-			const adminData = await pb.collection('_superusers').authWithPassword(email, password);
-			return {
-				success: true,
-				type: 'admin',
-				data: adminData
-			};
-		} catch (e) {
-			console.error(e);
-			return {
-				success: false,
-				error: 'Invalid credentials'
-			};
-		}
+	} catch (e) {
+		console.error(e);
+		return {
+			success: false,
+			error: 'Invalid credentials'
+		};
 	}
 }
 
@@ -61,7 +50,7 @@ export async function getProjectById(id) {
  * @returns {Promise<ImagesResponse[]>} The retrieved image records.
  */
 export async function getImagesByProjectId(id) {
-	return pb.collection('images').getFullList({ filter: `project="${id}"` });
+	return pb.collection('images').getFullList({ filter: `project="${id}"`, expand: 'approved_by' });
 }
 
 /**

@@ -24,15 +24,16 @@
 		{ key: 'image', value: 'Image', empty: false },
 		{ key: 'title', value: 'Title', empty: false },
 		{ key: 'data_source', value: 'Data Source', empty: false },
+		{ key: 'approved_by', value: 'Approved By', empty: false },
 		{
-			key: 'modified',
-			value: 'Modified',
+			key: 'approved',
+			value: 'Approved',
 			empty: false,
 			sort: (/** @type {Boolean} */ a, /** @type {Boolean} */ b) => +b - +a
 		},
 		{
-			key: 'approved',
-			value: 'Approved',
+			key: 'modified',
+			value: 'Modified',
 			empty: false,
 			sort: (/** @type {Boolean} */ a, /** @type {Boolean} */ b) => +b - +a
 		},
@@ -76,6 +77,8 @@
 				<a href="{resolve('/image')}?imageId={row.id}">{row.title}</a>
 			{:else if cell.key === 'image'}
 				<ImageLoader fadeIn src={row.image_url} alt={row.title} />
+			{:else if cell.key === 'approved_by'}
+				{row.approved_by ? row.expand.approved_by.name : ''}
 			{:else if cell.key === 'modified'}
 				{#if cell.value}
 					<Modified />
@@ -126,19 +129,27 @@
 	}
 
 	:global(.images-table tr > :is(:nth-child(1))) {
-		width: calc((100% - 200px - 3 * 60px) / 2);
+		width: calc((100% - 350px - 3 * 60px) / 2);
 	}
 
 	:global(.images-table tr > :is(:nth-child(2))) {
-		width: calc((100% - 200px - 3 * 60px) / 2);
+		width: calc((100% - 350px - 3 * 60px) / 2);
 	}
 
 	:global(.images-table tr > :is(:nth-child(3))) {
 		width: 200px;
 	}
 
-	:global(.images-table tr > :is(:nth-child(4), :nth-child(5), :nth-child(6))) {
+	:global(.images-table tr > :is(:nth-child(4))) {
+		width: 150px;
+	}
+
+	:global(.images-table tr > :is(:nth-child(5), :nth-child(6), :nth-child(7))) {
 		width: 60px;
+
+		&:not(:has(button)) {
+			padding-left: 0.5rem;
+		}
 
 		:global(.bx--table-sort) {
 			padding-left: 0.5rem;

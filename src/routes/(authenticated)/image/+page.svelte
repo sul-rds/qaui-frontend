@@ -13,7 +13,8 @@
 		getProjectById,
 		getImageById,
 		getImagesByProjectId,
-		updateImageRecord
+		updateImageRecord,
+		pb
 	} from '$lib/pocketbase';
 	import { debounce, deepEqual } from '$lib/utils';
 
@@ -59,7 +60,15 @@
 
 	const toggleApproved = () => {
 		image.approved = !image.approved;
-		updateImageRecord(image.id, { approved: image.approved });
+
+		if (image.approved) {
+			updateImageRecord(image.id, {
+				approved: image.approved,
+				approved_by: pb.authStore.record?.id
+			});
+		} else {
+			updateImageRecord(image.id, { approved: image.approved, approved_by: '' });
+		}
 	};
 
 	const toggleFlagged = () => {

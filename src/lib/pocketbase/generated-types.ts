@@ -94,6 +94,7 @@ export type SuperusersRecord = {
 
 export type ImagesRecord<Tdata = unknown, Toriginal_data = unknown> = {
 	approved?: boolean
+	approved_by?: RecordIdString
 	created?: IsoDateString
 	data?: null | Tdata
 	data_source?: string
