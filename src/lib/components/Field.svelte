@@ -41,6 +41,16 @@
 		selection.removeAllRanges();
 		selection.addRange(range);
 	};
+
+	// bind:textContent doesn't handle null semantics properly
+	//  (null is immediately converted to the empty string, which is propagated
+	//   back up to the route controller and triggers a save)
+	$effect(() => {
+		if (input && input.textContent !== (value ?? '')) {
+			// eslint-disable-next-line svelte/no-dom-manipulating
+			input.textContent = value ?? '';
+		}
+	});
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -58,32 +68,28 @@
 		<span class="i"></span>
 	{/if}
 	{key}:
-	{#if typeof value === 'string'}
-		<span
-			class="value"
-			class:modified
-			contenteditable
-			use:tooltip={{
-				content: `Original value: ${originalValue}`,
-				placement: 'top-start',
-				enabled: modified
-			}}
-			bind:this={input}
-			bind:textContent={value}
-			onfocus={(/** @type {FocusEvent} */ evt) =>
-				selectText(/** @type {HTMLSpanElement} */ (evt.target))}
-		>
-		</span>
-		{#if modified}
-			<Button
-				iconDescription="Revert"
-				icon={Undo}
-				size="small"
-				onclick={() => (value = originalValue)}
-			/>
-		{/if}
-	{:else}
-		{value}
+	<span
+		class="value"
+		class:modified
+		contenteditable
+		use:tooltip={{
+			content: `Original value: ${originalValue}`,
+			placement: 'top-start',
+			enabled: modified
+		}}
+		bind:this={input}
+		oninput={() => (value = input.textContent === '' ? null : input.textContent)}
+		onfocus={(/** @type {FocusEvent} */ evt) =>
+			selectText(/** @type {HTMLSpanElement} */ (evt.target))}
+	>
+	</span>
+	{#if modified}
+		<Button
+			iconDescription="Revert"
+			icon={Undo}
+			size="small"
+			onclick={() => (value = originalValue)}
+		/>
 	{/if}
 </div>
 
