@@ -1,18 +1,14 @@
 <script>
 	import { page } from '$app/state';
 	import { InlineNotification } from 'carbon-components-svelte';
-	import { Toggle } from 'carbon-components-svelte';
 
 	import { getProjectById, getImagesByProjectId } from '$lib/pocketbase';
 
-	import ImageGrid from '$components/ImageGrid.svelte';
 	import ImageTable from '$components/ImageTable.svelte';
 
 	let project = $state();
 	/** @type {Promise<ImageWithApprovedBy[]>|ImageWithApprovedBy[]} */
 	let projectImages = $state([]);
-
-	let display = $state(false);
 
 	const projectId = page.url.searchParams.get('projectId');
 	if (projectId) {
@@ -41,13 +37,8 @@
 
 {#await project then project}
 	<h3>{project?.name}</h3>
-	<!-- <Toggle hideLabel labelA="Table" labelB="Grid" bind:toggled={display} /> -->
 	{#await projectImages then images}
-		{#if display}
-			<ImageGrid {images} />
-		{:else}
-			<ImageTable {images} />
-		{/if}
+		<ImageTable {images} />
 	{/await}
 {:catch}
 	<InlineNotification lowContrast hideCloseButton kind="error" title="Invalid Project ID">
