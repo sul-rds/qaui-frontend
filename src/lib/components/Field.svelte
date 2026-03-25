@@ -5,8 +5,6 @@
 
 	import { tooltip } from '$lib/actions/tooltip';
 
-	/** @typedef {import('json-schema').JSONSchema7} JSONSchema7 */
-
 	/**
 	 * @typedef {Object} FieldsProps
 	 * @prop {string} key

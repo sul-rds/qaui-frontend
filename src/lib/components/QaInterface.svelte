@@ -8,11 +8,6 @@
 	import Fields from '$components/Fields.svelte';
 
 	/**
-	 * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
-	 * @typedef {import('json-schema').JSONSchema7} JSONSchema7
-	 */
-
-	/**
 	 * @typedef {Object} FieldsProps
 	 * @prop {ImagesResponse} image
 	 * @prop {{ [key: string]: any }} data

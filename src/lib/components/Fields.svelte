@@ -7,8 +7,6 @@
 	import Field from '$components/Field.svelte';
 	import Fields from '$components/Fields.svelte';
 
-	/** @typedef {import('json-schema').JSONSchema7} JSONSchema7 */
-
 	/**
 	 * @typedef {Object} FieldsProps
 	 * @prop {{ [key: string]: any }} data

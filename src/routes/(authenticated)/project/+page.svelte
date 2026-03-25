@@ -1,8 +1,4 @@
 <script>
-	/**
-	 * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
-	 */
-
 	import { page } from '$app/state';
 	import { InlineNotification } from 'carbon-components-svelte';
 	import { Toggle } from 'carbon-components-svelte';
@@ -13,7 +9,7 @@
 	import ImageTable from '$components/ImageTable.svelte';
 
 	let project = $state();
-	/** @type {Promise<ImagesResponse[]>|ImagesResponse[]} */
+	/** @type {Promise<ImageWithApprovedBy[]>|ImageWithApprovedBy[]} */
 	let projectImages = $state([]);
 
 	let display = $state(false);

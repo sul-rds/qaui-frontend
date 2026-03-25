@@ -5,10 +5,6 @@
 	import { Approved, Modified, Flagged } from '$lib/icons';
 
 	/**
-	 * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
-	 */
-
-	/**
 	 * @typedef {Object} ImageGridProps
 	 * @prop {ImagesResponse[]} images
 	 */
