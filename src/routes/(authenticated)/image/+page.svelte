@@ -160,6 +160,11 @@
 		margin-top: -1rem;
 		padding: 0.25rem 1rem;
 
+		::selection {
+			background-color: white;
+			color: var(--primary);
+		}
+
 		:global(.bx--btn--ghost path) {
 			fill: white;
 		}
