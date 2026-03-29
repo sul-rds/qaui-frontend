@@ -1,21 +1,18 @@
 <script>
-	import { Button } from 'carbon-components-svelte';
-
-	import Add from 'carbon-icons-svelte/lib/Add.svelte';
-	import Subtract from 'carbon-icons-svelte/lib/Subtract.svelte';
-
 	import Field from '$components/Field.svelte';
 	import Fields from '$components/Fields.svelte';
+	import FieldInfoAnnotation from '$components/FieldInfoAnnotation.svelte';
 
 	/**
 	 * @typedef {Object} FieldsProps
 	 * @prop {{ [key: string]: any }} data
 	 * @prop {{ [key: string]: any }} originalData
 	 * @prop {JSONSchema7} schema
+	 * @prop {string} [label]
 	 */
 
 	/** @type {FieldsProps} */
-	let { data = $bindable(), originalData, schema } = $props();
+	let { data = $bindable(), originalData, schema, label } = $props();
 
 	const /** @type {string[]} */ orderedKeys = [];
 	for (const key in schema.properties) {
@@ -28,48 +25,66 @@
 			orderedKeys.push(key);
 		}
 	}
+
+	const type = $derived(
+		Array.isArray(data)
+			? 'array'
+			: data !== null && typeof data === 'object'
+				? 'object'
+				: 'primitive'
+	);
 </script>
 
-{#if data}
-	{#each orderedKeys as key (key)}
-		{#if typeof data[key] === 'object' && data[key] !== null}
-			<details open>
-				<summary>
-					<div class="overlay">
-						<Button size="small" kind="ghost" iconDescription="Expand All" icon={Add} />
-						<Button size="small" kind="ghost" iconDescription="Collapse All" icon={Subtract} />
-					</div>
-					{key}
-				</summary>
+{#if type === 'primitive'}
+	<Field {label} bind:value={data} originalValue={originalData} {schema} />
+{:else if type === 'object'}
+	{#if label !== undefined}
+		<details open>
+			<summary>
+				{#if schema.description}<FieldInfoAnnotation description={schema.description} />{/if}
+				{label}
+			</summary>
+			{#each orderedKeys as key (key)}
 				<Fields
 					bind:data={data[key]}
-					originalData={originalData[key]}
-					schema={Array.isArray(data)
-						? /** @type {JSONSchema7} */ (schema.items)
-						: /** @type {JSONSchema7} */ (schema.properties?.[key])}
+					originalData={originalData?.[key]}
+					schema={schema.properties?.[key]}
+					label={key}
 				/>
-			</details>
-		{:else}
-			<Field {key} bind:value={data[key]} originalValue={originalData?.[key]} {schema} />
-		{/if}
-	{/each}
+			{/each}
+		</details>
+	{:else}
+		{#each orderedKeys as key (key)}
+			<Fields
+				bind:data={data[key]}
+				originalData={originalData?.[key]}
+				schema={schema.properties?.[key]}
+				label={key}
+			/>
+		{/each}
+	{/if}
+{:else if type === 'array'}
+	<details open>
+		<summary>
+			{#if schema.items?.description}<FieldInfoAnnotation
+					description={schema.items?.description}
+				/>{/if}
+			{label}
+		</summary>
+		{#each data as item, i (i)}
+			<Fields
+				bind:data={data[i]}
+				originalData={originalData?.[i]}
+				schema={schema.items}
+				label={i + 1}
+			/>
+			<!-- onDelete={() => data.splice(i, 1)} -->
+		{/each}
+	</details>
+	<!-- <button onclick={() => value.push(inferEmptyValue(value))}>+ Add item</button> -->
 {/if}
 
 <style>
-	.overlay {
-		position: absolute;
-		right: 0;
-		top: 0;
-		/* background-color: rgba(0, 0, 0, 0.1); */
-		color: white;
-		padding: 0.5rem;
-		height: 100%;
-		display: flex;
-		align-items: center;
-
-		display: none;
-	}
-
 	details {
 		padding: 1rem;
 		background: rgba(0, 0, 0, 0.1);

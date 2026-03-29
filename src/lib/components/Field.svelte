@@ -1,35 +1,24 @@
 <script>
 	import { Button } from 'carbon-components-svelte';
-	import Information from 'carbon-icons-svelte/lib/Information.svelte';
+
 	import Undo from 'carbon-icons-svelte/lib/Undo.svelte';
 
 	import { tooltip } from '$lib/actions/tooltip';
+	import FieldInfoAnnotation from './FieldInfoAnnotation.svelte';
 
 	/**
 	 * @typedef {Object} FieldsProps
-	 * @prop {string} key
+	 * @prop {string|number|undefined} label
 	 * @prop {Object} value
 	 * @prop {Object} originalValue
 	 * @prop {JSONSchema7} schema
 	 */
 
 	/** @type {FieldsProps} */
-	let { key, value = $bindable(), originalValue, schema } = $props();
+	let { label, value = $bindable(), originalValue, schema } = $props();
 
 	let input = $state();
 	let modified = $derived(value !== originalValue);
-
-	/**
-	 * @param {JSONSchema7} schema
-	 * @param {string} key
-	 */
-	const getDescription = (schema, key) => {
-		if (schema && schema.type === 'object') {
-			const prop = schema.properties?.[key];
-			return typeof prop === 'object' && prop ? prop.description : undefined;
-		}
-	};
-	const description = getDescription(schema, key);
 
 	const selectText = (/** @type {HTMLSpanElement} */ el) => {
 		const range = document.createRange();
@@ -60,12 +49,10 @@
 		setTimeout(() => input.focus());
 	}}
 >
-	{#if description}
-		<span class="i" use:tooltip={{ content: description }}><Information /></span>
-	{:else}
-		<span class="i"></span>
+	{#if typeof label === 'string'}
+		<FieldInfoAnnotation description={schema.description} />
 	{/if}
-	{key}:
+	{label}:
 	<span
 		class="value"
 		class:modified
@@ -92,22 +79,6 @@
 </div>
 
 <style>
-	span.i {
-		cursor: help;
-		display: inline-block;
-		min-width: 0.75rem;
-		opacity: 0.5;
-
-		&:hover {
-			opacity: 1;
-		}
-
-		> :global(svg) {
-			height: 0.75rem;
-			width: 0.75rem;
-		}
-	}
-
 	div.field {
 		align-items: stretch;
 		display: flex;
