@@ -40,8 +40,6 @@
 			sort: (/** @type {Boolean} */ a, /** @type {Boolean} */ b) => +b - +a
 		}
 	];
-
-	console.log(images);
 </script>
 
 <section>
@@ -56,7 +54,7 @@
 		zebra
 		stickyHeader
 	>
-		<svelte:fragment slot="cell-header" let:header>
+		<svelte:fragment slot="cellHeader" let:header>
 			{#if header.key === 'modified'}
 				<Modified />
 			{:else if header.key === 'approved'}

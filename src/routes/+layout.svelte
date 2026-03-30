@@ -19,9 +19,9 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<Header company="SUL-RDS" platformName="Structured Data from Images - QA UI" href="/">
+<Header companyName="SUL-RDS" platformName="Structured Data from Images - QA UI" href="/">
 	<img slot="company" src={favicon} alt="Stanford University Libraries" class="sul-logo" />
-	<svelte:fragment slot="skip-to-content">
+	<svelte:fragment slot="skipToContent">
 		<SkipToContent />
 	</svelte:fragment>
 	<HeaderUtilities>

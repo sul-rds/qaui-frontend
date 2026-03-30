@@ -42,7 +42,7 @@
 	{/await}
 {:catch}
 	<InlineNotification lowContrast hideCloseButton kind="error" title="Invalid Project ID">
-		<span slot="subtitle">
+		<span slot="subtitleChildren">
 			Project "<span style="font-family:monospace">{projectId}</span>" could not be loaded.
 		</span>
 	</InlineNotification>
