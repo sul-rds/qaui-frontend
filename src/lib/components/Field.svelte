@@ -50,18 +50,18 @@
 	onclick={() => {
 		if (!input || !input.focus) return;
 		console.log(input);
-		setTimeout(() => input.focus());
+		setTimeout(() => input?.focus());
 	}}
 >
 	{#if typeof label === 'string'}
 		<FieldInfoAnnotation description={schema.description} />
 	{/if}
-	{label}:
+	<span class="label">{label}:</span>
 	<span
 		class="value"
 		class:modified={status === 'modified' || (status === undefined && modified)}
 		class:removed={status === 'removed'}
-		contenteditable
+		contenteditable={status !== 'removed'}
 		use:tooltip={{
 			content: `Original value: ${originalValue}`,
 			placement: 'top-start',
@@ -82,7 +82,13 @@
 		/>
 	{/if}
 	{#if onDelete}
-		<Button iconDescription="Delete" icon={Delete} size="small" on:click={onDelete} />
+		<Button
+			iconDescription="Delete"
+			icon={Delete}
+			size="small"
+			on:click={onDelete}
+			disabled={status === 'removed'}
+		/>
 	{/if}
 </div>
 
@@ -95,6 +101,12 @@
 		gap: 0.5rem 0.25rem;
 		margin: 0.15rem 0;
 		padding: 0.25rem 0;
+	}
+
+	span.label {
+		display: inline-block;
+		min-width: 1.5rem;
+		text-align: right;
 	}
 
 	span.value {
