@@ -1,10 +1,9 @@
 <script>
 	import { Button } from 'carbon-components-svelte';
 
-	import TrashCan from 'carbon-icons-svelte/lib/TrashCan.svelte';
-	import Undo from 'carbon-icons-svelte/lib/Undo.svelte';
-
 	import { tooltip } from '$lib/actions/tooltip';
+	import { Delete, Undo } from '$lib/icons';
+
 	import FieldInfoAnnotation from '$components/FieldInfoAnnotation.svelte';
 
 	/**
@@ -83,7 +82,7 @@
 		/>
 	{/if}
 	{#if onDelete}
-		<Button iconDescription="Delete" icon={TrashCan} size="small" on:click={onDelete} />
+		<Button iconDescription="Delete" icon={Delete} size="small" on:click={onDelete} />
 	{/if}
 </div>
 

@@ -1,9 +1,7 @@
 <script>
 	import { Button, ImageLoader, Loading } from 'carbon-components-svelte';
-	import CheckmarkFilled from 'carbon-icons-svelte/lib/CheckmarkFilled.svelte';
-	import CheckmarkOutline from 'carbon-icons-svelte/lib/CheckmarkOutline.svelte';
-	import Flag from 'carbon-icons-svelte/lib/Flag.svelte';
-	import FlagFilled from 'carbon-icons-svelte/lib/FlagFilled.svelte';
+
+	import { Approved, Flagged, Unapproved, Unflagged, Reset } from '$lib/icons';
 
 	import Fields from '$components/Fields.svelte';
 
@@ -27,6 +25,7 @@
 		<div class="actions">
 			<Button
 				kind="secondary"
+				icon={Reset}
 				expressive
 				disabled={!image.modified}
 				onclick={() => (data = structuredClone($state.snapshot(originalData)))}
@@ -35,14 +34,14 @@
 			</Button>
 			<Button
 				kind="secondary"
-				icon={image.flagged || false ? Flag : FlagFilled}
+				icon={image.flagged || false ? Unflagged : Flagged}
 				expressive
 				onclick={() => toggleFlagged()}
 			>
 				{image.flagged ? 'Unflag' : 'Flag'}
 			</Button>
 			<Button
-				icon={image.approved ? CheckmarkOutline : CheckmarkFilled}
+				icon={image.approved ? Unapproved : Approved}
 				expressive
 				onclick={() => toggleApproved()}
 			>

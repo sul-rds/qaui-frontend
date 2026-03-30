@@ -10,6 +10,9 @@
 	--primary-hover: #7abecc;
 	--primary-active: #30707e;
 
+	--added: #67b767;
+	--removed: #be6767;
+
 	accent-color: var(--primary);
 }
 
