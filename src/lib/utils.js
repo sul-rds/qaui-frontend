@@ -47,3 +47,113 @@ export function deepEqual(a, b) {
 
 	return false;
 }
+
+/**
+ * @param {unknown} a
+ * @param {unknown} b
+ * @returns {number} 0 (completely different) to 1 (identical)
+ */
+function similarity(a, b) {
+	if (deepEqual(a, b)) return 1;
+	if (typeof a !== typeof b) return 0;
+	if (a === null || b === null) return 0;
+
+	if (typeof a === 'string' && typeof b === 'string') {
+		// longer common prefix/length ratio is a cheap string similarity
+		const longer = Math.max(a.length, b.length);
+		if (longer === 0) return 1;
+		const matching = [...a].filter((ch, i) => ch === b[i]).length;
+		return matching / longer;
+	}
+
+	if (typeof a === 'object' && !Array.isArray(a) && !Array.isArray(b)) {
+		const keysA = Object.keys(a);
+		const keysB = Object.keys(b);
+		const allKeys = new Set([...keysA, ...keysB]);
+		if (allKeys.size === 0) return 1;
+		// average similarity across all keys
+		let total = 0;
+		for (const key of allKeys) {
+			total += similarity(
+				/** @type {Record<string, unknown>} */ (a)[key],
+				/** @type {Record<string, unknown>} */ (b)[key]
+			);
+		}
+		return total / allKeys.size;
+	}
+
+	return 0;
+}
+
+/**
+ * @template T
+ * @param {DiffEntry<T>[]} diff
+ * @param {number} [threshold] - 0 to 1, how similar items need to be to count as modified
+ * @returns {DiffEntry<T>[]}
+ */
+function collapseModified(diff, threshold = 0.5) {
+	const result = [];
+	let i = 0;
+	while (i < diff.length) {
+		const current = diff[i];
+		const next = diff[i + 1];
+
+		// Look for a removed followed immediately by an added
+		if (
+			current.status === 'removed' &&
+			next?.status === 'added' &&
+			similarity(current.value, next.value) >= threshold
+		) {
+			result.push({
+				status: 'modified',
+				value: next.value,
+				index: next.index,
+				originalIndex: current.originalIndex
+			});
+			i += 2;
+		} else {
+			result.push(current);
+			i++;
+		}
+	}
+	return result;
+}
+
+/**
+ * @template T
+ * @param {T[]} a - original array
+ * @param {T[]} b - current array
+ * @param {(a: T, b: T) => boolean} eq
+ * @returns {DiffEntry<T>[]}
+ */
+export function diffArrays(a, b, eq) {
+	const m = a.length,
+		n = b.length;
+
+	// Build LCS table
+	const table = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+	for (let i = 1; i <= m; i++)
+		for (let j = 1; j <= n; j++)
+			table[i][j] = eq(a[i - 1], b[j - 1])
+				? table[i - 1][j - 1] + 1
+				: Math.max(table[i - 1][j], table[i][j - 1]);
+
+	// Backtrack, tracking index into b
+	const result = [];
+	let i = m,
+		j = n;
+	while (i > 0 || j > 0) {
+		if (i > 0 && j > 0 && eq(a[i - 1], b[j - 1])) {
+			result.unshift({ status: 'same', value: b[j - 1], index: j - 1, originalIndex: i - 1 });
+			i--;
+			j--;
+		} else if (j > 0 && (i === 0 || table[i][j - 1] >= table[i - 1][j])) {
+			result.unshift({ status: 'added', value: b[j - 1], index: j - 1, originalIndex: null });
+			j--;
+		} else {
+			result.unshift({ status: 'removed', value: a[i - 1], index: null, originalIndex: i - 1 });
+			i--;
+		}
+	}
+	return collapseModified(result);
+}

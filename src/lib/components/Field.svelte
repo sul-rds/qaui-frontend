@@ -1,21 +1,25 @@
 <script>
 	import { Button } from 'carbon-components-svelte';
 
+	import TrashCan from 'carbon-icons-svelte/lib/TrashCan.svelte';
 	import Undo from 'carbon-icons-svelte/lib/Undo.svelte';
 
 	import { tooltip } from '$lib/actions/tooltip';
-	import FieldInfoAnnotation from './FieldInfoAnnotation.svelte';
+	import FieldInfoAnnotation from '$components/FieldInfoAnnotation.svelte';
 
 	/**
-	 * @typedef {Object} FieldsProps
+	 * @typedef {Object} FieldProps
 	 * @prop {string|number|undefined} label
+	 * @prop {JSONSchema7} schema
 	 * @prop {Object} value
 	 * @prop {Object} originalValue
-	 * @prop {JSONSchema7} schema
+	 * @prop {DiffStatus} status
+	 * @prop {Function} [onDelete]
+	 * @prop {Function} [onReset]
 	 */
 
-	/** @type {FieldsProps} */
-	let { label, value = $bindable(), originalValue, schema } = $props();
+	/** @type {FieldProps} */
+	let { label, schema, value = $bindable(), originalValue, status, onDelete, onReset } = $props();
 
 	let input = $state();
 	let modified = $derived(value !== originalValue);
@@ -45,7 +49,8 @@
 <div
 	class="field"
 	onclick={() => {
-		if (!input) return;
+		if (!input || !input.focus) return;
+		console.log(input);
 		setTimeout(() => input.focus());
 	}}
 >
@@ -55,7 +60,8 @@
 	{label}:
 	<span
 		class="value"
-		class:modified
+		class:modified={status === 'modified' || (status === undefined && modified)}
+		class:removed={status === 'removed'}
 		contenteditable
 		use:tooltip={{
 			content: `Original value: ${originalValue}`,
@@ -68,13 +74,16 @@
 			selectText(/** @type {HTMLSpanElement} */ (evt.target))}
 	>
 	</span>
-	{#if modified}
+	{#if status === 'modified' || status === 'removed' || (status === undefined && modified)}
 		<Button
 			iconDescription="Revert"
 			icon={Undo}
 			size="small"
-			onclick={() => (value = originalValue)}
+			onclick={onReset ? onReset : () => (value = originalValue)}
 		/>
+	{/if}
+	{#if onDelete}
+		<Button iconDescription="Delete" icon={TrashCan} size="small" on:click={onDelete} />
 	{/if}
 </div>
 
@@ -100,6 +109,12 @@
 		&.modified {
 			background-color: hsl(from var(--primary) h s 85%);
 			outline: 2px dotted var(--primary);
+		}
+		&.removed {
+			background-color: transparent;
+			opacity: 0.5;
+			outline: none;
+			text-decoration: line-through;
 		}
 	}
 
