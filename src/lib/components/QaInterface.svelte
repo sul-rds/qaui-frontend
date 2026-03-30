@@ -27,6 +27,14 @@
 		<div class="actions">
 			<Button
 				kind="secondary"
+				expressive
+				disabled={!image.modified}
+				onclick={() => (data = structuredClone($state.snapshot(originalData)))}
+			>
+				Revert
+			</Button>
+			<Button
+				kind="secondary"
 				icon={image.flagged || false ? Flag : FlagFilled}
 				expressive
 				onclick={() => toggleFlagged()}
