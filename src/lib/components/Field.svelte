@@ -61,6 +61,7 @@
 		class="value"
 		class:modified={status === 'modified' || (status === undefined && modified)}
 		class:removed={status === 'removed'}
+		class:added={status === 'added'}
 		contenteditable={status !== 'removed'}
 		use:tooltip={{
 			content: `Original value: ${originalValue}`,
@@ -121,10 +122,16 @@
 			background-color: hsl(from var(--primary) h s 85%);
 			outline: 2px dotted var(--primary);
 		}
+
+		&.added {
+			background-color: hsl(from var(--added) h s 85%);
+			outline: 2px dotted var(--added);
+		}
+
 		&.removed {
-			background-color: transparent;
-			opacity: 0.5;
-			outline: none;
+			background-color: hsl(from var(--removed) h s 85%);
+			opacity: 0.6;
+			outline: 2px dotted var(--removed);
 			text-decoration: line-through;
 		}
 	}

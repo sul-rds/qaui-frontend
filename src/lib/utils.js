@@ -53,7 +53,7 @@ export function deepEqual(a, b) {
  * @param {unknown} b
  * @returns {number} 0 (completely different) to 1 (identical)
  */
-function similarity(a, b) {
+export function similarity(a, b) {
 	if (deepEqual(a, b)) return 1;
 	if (typeof a !== typeof b) return 0;
 	if (a === null || b === null) return 0;
@@ -87,64 +87,44 @@ function similarity(a, b) {
 
 /**
  * @template T
- * @param {DiffEntry<T>[]} diff
- * @param {number} [threshold] - 0 to 1, how similar items need to be to count as modified
- * @returns {DiffEntry<T>[]}
- */
-function collapseModified(diff, threshold = 0.5) {
-	const result = [];
-	let i = 0;
-	while (i < diff.length) {
-		const current = diff[i];
-		const next = diff[i + 1];
-
-		// Look for a removed followed immediately by an added
-		if (
-			current.status === 'removed' &&
-			next?.status === 'added' &&
-			similarity(current.value, next.value) >= threshold
-		) {
-			result.push({
-				status: 'modified',
-				value: next.value,
-				index: next.index,
-				originalIndex: current.originalIndex
-			});
-			i += 2;
-		} else {
-			result.push(current);
-			i++;
-		}
-	}
-	return result;
-}
-
-/**
- * @template T
  * @param {T[]} a - original array
  * @param {T[]} b - current array
  * @param {(a: T, b: T) => boolean} eq
+ * @param {(a: T, b: T) => number} similarityFn
+ * @param {number} [threshold=0.5]
  * @returns {DiffEntry<T>[]}
  */
-export function diffArrays(a, b, eq) {
+export function diffArrays(a, b, eq, similarityFn, threshold = 0.5) {
 	const m = a.length,
 		n = b.length;
 
-	// Build LCS table
+	// Build similarity table
 	const table = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
-	for (let i = 1; i <= m; i++)
-		for (let j = 1; j <= n; j++)
-			table[i][j] = eq(a[i - 1], b[j - 1])
-				? table[i - 1][j - 1] + 1
-				: Math.max(table[i - 1][j], table[i][j - 1]);
+	for (let i = 1; i <= m; i++) {
+		for (let j = 1; j <= n; j++) {
+			const sim = similarityFn(a[i - 1], b[j - 1]);
+			if (sim >= threshold) {
+				// Treat as a match, weighted by similarity
+				table[i][j] = table[i - 1][j - 1] + sim;
+			} else {
+				table[i][j] = Math.max(table[i - 1][j], table[i][j - 1]);
+			}
+		}
+	}
 
-	// Backtrack, tracking index into b
+	// Backtrack
 	const result = [];
 	let i = m,
 		j = n;
 	while (i > 0 || j > 0) {
-		if (i > 0 && j > 0 && eq(a[i - 1], b[j - 1])) {
-			result.unshift({ status: 'same', value: b[j - 1], index: j - 1, originalIndex: i - 1 });
+		const sim = i > 0 && j > 0 ? similarityFn(a[i - 1], b[j - 1]) : 0;
+		if (i > 0 && j > 0 && sim >= threshold) {
+			result.unshift({
+				status: sim === 1 ? 'same' : 'modified',
+				value: b[j - 1],
+				index: j - 1,
+				originalIndex: i - 1
+			});
 			i--;
 			j--;
 		} else if (j > 0 && (i === 0 || table[i][j - 1] >= table[i - 1][j])) {
@@ -155,5 +135,5 @@ export function diffArrays(a, b, eq) {
 			i--;
 		}
 	}
-	return collapseModified(result);
+	return result;
 }

@@ -1,5 +1,5 @@
 <script>
-	import { diffArrays, deepEqual } from '$lib/utils';
+	import { diffArrays, deepEqual, similarity } from '$lib/utils';
 
 	import Field from '$components/Field.svelte';
 	import Fields from '$components/Fields.svelte';
@@ -11,7 +11,7 @@
 	 * @prop {JSONSchema7} schema
 	 * @prop {{ [key: string]: any }} data
 	 * @prop {{ [key: string]: any }} originalData
-	 * @prop {DiffStatus} status
+	 * @prop {DiffStatus} [status]
 	 * @prop {Function} [onDelete]
 	 * @prop {Function} [onReset]
 	 */
@@ -20,7 +20,7 @@
 	let { label, schema, data = $bindable(), originalData, status, onDelete, onReset } = $props();
 
 	const restoreRemoved = (item, diffIndex, data, originalData) => {
-		const diff = diffArrays(originalData, data, deepEqual);
+		const diff = diffArrays(originalData ?? [], data, deepEqual, similarity);
 		const predecessor = [...diff.slice(0, diffIndex)].reverse().find((e) => e.index !== null);
 
 		console.log(`predecessor`, predecessor);
@@ -94,7 +94,8 @@
 			{/if}
 			{label}
 		</summary>
-		{#each diffArrays(originalData, data, deepEqual) as item, i (i)}
+		{console.log(diffArrays(originalData, data, deepEqual, similarity))}
+		{#each diffArrays(originalData, data, deepEqual, similarity) as item, i (i)}
 			{#if item.status === 'removed'}
 				<Fields
 					data={item.value}
@@ -119,6 +120,7 @@
 			{/if}
 		{/each}
 	</details>
+	<!-- <button onclick={() => value.push(inferEmptyValue(value))}>+ Add item</button> -->
 {/if}
 
 <style>
