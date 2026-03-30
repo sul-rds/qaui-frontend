@@ -98,8 +98,4 @@
 			min-width: 12rem;
 		}
 	}
-
-	header {
-		margin-bottom: 1rem;
-	}
 </style>

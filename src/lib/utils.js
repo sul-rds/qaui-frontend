@@ -66,7 +66,7 @@ export function similarity(a, b) {
 		return matching / longer;
 	}
 
-	if (typeof a === 'object' && !Array.isArray(a) && !Array.isArray(b)) {
+	if (typeof a === 'object' && typeof b === 'object' && !Array.isArray(a) && !Array.isArray(b)) {
 		const keysA = Object.keys(a);
 		const keysB = Object.keys(b);
 		const allKeys = new Set([...keysA, ...keysB]);
@@ -119,19 +119,35 @@ export function diffArrays(a, b, eq, similarityFn, threshold = 0.5) {
 	while (i > 0 || j > 0) {
 		const sim = i > 0 && j > 0 ? similarityFn(a[i - 1], b[j - 1]) : 0;
 		if (i > 0 && j > 0 && sim >= threshold) {
-			result.unshift({
-				status: sim === 1 ? 'same' : 'modified',
-				value: b[j - 1],
-				index: j - 1,
-				originalIndex: i - 1
-			});
+			result.unshift(
+				/** @type {DiffEntry<T>} */ ({
+					status: sim === 1 ? 'unmodified' : 'modified',
+					value: b[j - 1],
+					index: j - 1,
+					originalIndex: i - 1
+				})
+			);
 			i--;
 			j--;
 		} else if (j > 0 && (i === 0 || table[i][j - 1] >= table[i - 1][j])) {
-			result.unshift({ status: 'added', value: b[j - 1], index: j - 1, originalIndex: null });
+			result.unshift(
+				/** @type {DiffEntry<T>} */ ({
+					status: 'added',
+					value: b[j - 1],
+					index: j - 1,
+					originalIndex: null
+				})
+			);
 			j--;
 		} else {
-			result.unshift({ status: 'removed', value: a[i - 1], index: null, originalIndex: i - 1 });
+			result.unshift(
+				/** @type {DiffEntry<T>} */ ({
+					status: 'removed',
+					value: a[i - 1],
+					index: null,
+					originalIndex: i - 1
+				})
+			);
 			i--;
 		}
 	}

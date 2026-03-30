@@ -10,7 +10,7 @@
  */
 
 /**
- * @typedef {'same' | 'added' | 'removed' | 'modified'} DiffStatus
+ * @typedef {'unmodified' | 'added' | 'removed' | 'modified'} DiffStatus
  */
 
 /**

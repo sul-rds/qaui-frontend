@@ -12,7 +12,7 @@
 	 * @prop {JSONSchema7} schema
 	 * @prop {Object} value
 	 * @prop {Object} originalValue
-	 * @prop {DiffStatus} status
+	 * @prop {DiffStatus} [status]
 	 * @prop {Function} [onDelete]
 	 * @prop {Function} [onReset]
 	 */
@@ -49,7 +49,6 @@
 	class="field"
 	onclick={() => {
 		if (!input || !input.focus) return;
-		console.log(input);
 		setTimeout(() => input?.focus());
 	}}
 >
@@ -79,7 +78,7 @@
 			iconDescription="Revert"
 			icon={Undo}
 			size="small"
-			onclick={onReset ? onReset : () => (value = originalValue)}
+			onclick={onReset ? () => onReset() : () => (value = originalValue)}
 		/>
 	{/if}
 	{#if onDelete}
@@ -87,7 +86,7 @@
 			iconDescription="Delete"
 			icon={Delete}
 			size="small"
-			on:click={onDelete}
+			on:click={() => onDelete()}
 			disabled={status === 'removed'}
 		/>
 	{/if}

@@ -7,7 +7,7 @@
 
 	/**
 	 * @typedef {Object} FieldsProps
-	 * @prop {string} [label]
+	 * @prop {string|number} [label]
 	 * @prop {JSONSchema7} schema
 	 * @prop {{ [key: string]: any }} data
 	 * @prop {{ [key: string]: any }} originalData
@@ -19,13 +19,14 @@
 	/** @type {FieldsProps} */
 	let { label, schema, data = $bindable(), originalData, status, onDelete, onReset } = $props();
 
-	const restoreRemoved = (item, diffIndex, data, originalData) => {
-		const diff = diffArrays(originalData ?? [], data, deepEqual, similarity);
-		const predecessor = [...diff.slice(0, diffIndex)].reverse().find((e) => e.index !== null);
-
-		console.log(`predecessor`, predecessor);
-		const insertAt = predecessor ? predecessor.index + 1 : 0;
-		console.log(`insertAt`, insertAt);
+	/**
+	 * @param {DiffEntry<any>} item
+	 * @param {number} diffIndex
+	 */
+	const restoreRemoved = (item, diffIndex) => {
+		if (!arrayDiff || !item.originalIndex) return;
+		const predecessor = [...arrayDiff.slice(0, diffIndex)].reverse().find((e) => e.index !== null);
+		const insertAt = predecessor?.index ? predecessor.index + 1 : 0;
 		data.splice(insertAt, 0, structuredClone(originalData[item.originalIndex]));
 	};
 
@@ -48,6 +49,17 @@
 				? 'object'
 				: 'primitive'
 	);
+
+	/** @type {DiffEntry<any>[]|false} */
+	const arrayDiff = $derived(
+		type === 'array' &&
+			diffArrays(
+				/** @type {any[]} */ (originalData),
+				/** @type {any[]} */ (data),
+				deepEqual,
+				similarity
+			)
+	);
 </script>
 
 {#if type === 'primitive'}
@@ -68,52 +80,57 @@
 				{label}
 			</summary>
 			{#each orderedKeys as key (key)}
+				{@const objectSchema = /** @type {JSONSchema7} */ (schema.properties?.[key])}
 				<Fields
 					bind:data={data[key]}
 					originalData={originalData?.[key]}
-					schema={schema.properties?.[key]}
+					schema={objectSchema}
 					label={key}
 				/>
 			{/each}
 		</details>
 	{:else}
 		{#each orderedKeys as key (key)}
+			{@const objectSchema = /** @type {JSONSchema7} */ (schema.properties?.[key])}
 			<Fields
 				bind:data={data[key]}
 				originalData={originalData?.[key]}
-				schema={schema.properties?.[key]}
+				schema={objectSchema}
 				label={key}
 			/>
 		{/each}
 	{/if}
 {:else if type === 'array'}
+	{@const _arrayDiff = /** @type {DiffEntry<any>[]} */ (arrayDiff)}
+	{@const itemSchema = /** @type {JSONSchema7} */ (
+		Array.isArray(schema?.items) ? schema.items[0] : schema?.items
+	)}
 	<details open>
 		<summary>
-			{#if schema.items?.description}
-				<FieldInfoAnnotation description={schema.items?.description} />
+			{#if itemSchema.description}
+				<FieldInfoAnnotation description={itemSchema.description} />
 			{/if}
 			{label}
 		</summary>
-		{console.log(diffArrays(originalData, data, deepEqual, similarity))}
-		{#each diffArrays(originalData, data, deepEqual, similarity) as item, i (i)}
+		{#each _arrayDiff as item, i (i)}
 			{#if item.status === 'removed'}
 				<Fields
 					data={item.value}
 					originalData={item.value}
-					schema={schema.items}
-					label={item.index === null ? null : item.index + 1}
+					schema={itemSchema}
+					label={item.index === null ? undefined : item.index + 1}
 					onDelete={() => data.splice(item.index, 1)}
-					onReset={() => restoreRemoved(item, i, data, originalData)}
+					onReset={() => restoreRemoved(item, i)}
 					status={item.status}
 				/>
 			{:else}
 				<Fields
-					bind:data={data[item.index]}
+					bind:data={data[/** @type {number} */ (item.index)]}
 					originalData={item.status === 'modified'
-						? originalData?.[item.originalIndex]
-						: originalData?.[item.index]}
-					schema={schema.items}
-					label={item.index === null ? null : item.index + 1}
+						? originalData?.[/** @type {number} */ (item.originalIndex)]
+						: originalData?.[/** @type {number} */ (item.index)]}
+					schema={itemSchema}
+					label={item.index === null ? undefined : item.index + 1}
 					onDelete={() => data.splice(item.index, 1)}
 					status={item.status}
 				/>
