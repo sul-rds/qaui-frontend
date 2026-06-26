@@ -17,7 +17,12 @@ export default [
 	...svelte.configs.prettier,
 	{
 		languageOptions: {
-			globals: { ...globals.browser, ...globals.node }
+			globals: {
+				__COMMIT_HASH__: 'readonly',
+				__BUILD_TIME__: 'readonly',
+				...globals.browser,
+				...globals.node
+			}
 		}
 	},
 	{

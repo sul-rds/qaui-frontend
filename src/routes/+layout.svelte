@@ -17,6 +17,8 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<meta name="version" content={__COMMIT_HASH__} />
+	<meta name="dcterms.modified" content={__BUILD_TIME__} />
 </svelte:head>
 
 <Header companyName="SUL-RDS" platformName="Structured Data from Images - QA UI" href="/">
