@@ -5,8 +5,13 @@
 </script>
 
 <svelte:head>
-	<title>Not authenticated</title>
-	<meta name="description" content="" />
+	{#if pb.authStore.isValid}
+		<title>Dataset List</title>
+		<meta name="description" content="" />
+	{:else}
+		<title>Not authenticated</title>
+		<meta name="description" content="" />
+	{/if}
 </svelte:head>
 
 {#if pb.authStore.isValid}

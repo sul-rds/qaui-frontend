@@ -95,6 +95,15 @@
 	loadData(page.url.searchParams.get('imageId') || '');
 </script>
 
+<svelte:head>
+	{#if image && project}
+		<title>{image?.title}</title>
+	{:else}
+		<title>Invalid Image ID</title>
+	{/if}
+	<meta name="description" content="" />
+</svelte:head>
+
 {#if loading}
 	<p>Loading...</p>
 {:else if error}
