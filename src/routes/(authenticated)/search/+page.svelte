@@ -9,6 +9,26 @@
 	let form = $state(/** @type {HTMLFormElement | null} */);
 	let results = $state();
 
+	async function executeSearch(query, searchFields) {
+		if (!query) return;
+
+		const filter = Object.entries(searchFields)
+			.filter(([_, v]) => v)
+			.map(([f]) => `${f} ~ {:q}`)
+			.join(' || ');
+
+		results = await pb.collection('images').getList(1, 20, {
+			filter: pb.filter(filter, { q: query })
+		});
+	}
+
+	$effect(() => {
+		form.q.value = page.url.searchParams.get('q');
+		if (form.q.value) {
+			executeSearch(form.q.value, { title: true, data: true, notes: true });
+		}
+	});
+
 	function searchObject(obj, searchTerm) {
 		const results = [];
 		const term = searchTerm.toLowerCase();
@@ -33,7 +53,7 @@
 						// Recurse into nested objects/arrays
 						walk(value, newPath);
 					} else {
-						if (value.toLowerCase().includes(term)) {
+						if (String(value).toLowerCase().includes(term)) {
 							results.push({
 								path: newPath.join('.'),
 								key,
@@ -59,18 +79,11 @@
 		if (!q) return;
 		if (!title && !data && !notes) return;
 
-		const filter = Object.entries({ title, data, notes })
-			.filter(([_, v]) => v)
-			.map(([f]) => `${f} ~ {:q}`)
-			.join(' || ');
-
-		results = await pb.collection('images').getList(1, 20, {
-			filter: pb.filter(filter, { q })
-		});
-
 		const url = new URL(page.url);
 		url.searchParams.set('q', q);
 		window.history.replaceState(null, '', url);
+
+		await executeSearch(q, { title, data, notes });
 	};
 </script>
 
