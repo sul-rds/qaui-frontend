@@ -72,7 +72,7 @@
 			{:else if cell.key === 'image'}
 				<ImageLoader fadeIn src={row.image_url} alt={row.title} />
 			{:else if cell.key === 'approved_by'}
-				{row.approved_by ? row.expand.approved_by.name : ''}
+				{row.approved_by ? row.expand?.approved_by.name : ''}
 			{:else if cell.key === 'modified'}
 				{#if cell.value}
 					<Modified />

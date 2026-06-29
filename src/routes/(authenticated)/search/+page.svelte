@@ -6,6 +6,8 @@
 
 	import { pb } from '$lib/pocketbase';
 
+	import ImageTable from '$components/ImageTable.svelte';
+
 	let form = $state(/** @type {HTMLFormElement | null} */);
 	let results = $state();
 
@@ -107,6 +109,7 @@
 </form>
 
 {#if results?.items.length}
+	<ImageTable images={results.items} />
 	<section id="results">
 		{#each results.items as result, i (/** @type {string} */ result.id)}
 			<!-- <pre>{JSON.stringify(result, null, 2)}</pre> -->
