@@ -4,7 +4,7 @@
 	import { tooltip } from '$lib/actions/tooltip';
 	import { Delete, Undo } from '$lib/icons';
 
-	import FieldInfoAnnotation from '$components/FieldInfoAnnotation.svelte';
+	import FieldInfoAnnotation from '$lib/components/Fields/FieldInfoAnnotation.svelte';
 
 	/**
 	 * @typedef {Object} FieldProps
