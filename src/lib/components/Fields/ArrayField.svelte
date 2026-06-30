@@ -53,8 +53,8 @@
 	 */
 	const restoreRemoved = (item, diffIndex) => {
 		if (!arrayDiff || item.originalIndex == null) return;
-		const predecessor = [...arrayDiff.slice(0, diffIndex)].reverse().find((e) => e.index !== null);
-		const insertAt = predecessor !== undefined ? predecessor.index + 1 : 0;
+		const predecessor = [...arrayDiff.slice(0, diffIndex)].reverse().find((e) => e.index != null);
+		const insertAt = predecessor?.index != null ? predecessor.index + 1 : 0;
 		data.splice(insertAt, 0, structuredClone(originalData[item.originalIndex]));
 	};
 </script>
