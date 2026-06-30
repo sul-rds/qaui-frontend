@@ -1,5 +1,11 @@
 <script>
-	import { diffArrays, deepEqual, similarity } from '$lib/utils';
+	import { tick } from 'svelte';
+
+	import { Button } from 'carbon-components-svelte';
+
+	import { tooltip } from '$lib/actions/tooltip';
+	import { Add } from '$lib/icons';
+	import { diffArrays, deepEqual, inferEmptyValue, similarity } from '$lib/utils';
 
 	import Fields from '$lib/components/Fields.svelte';
 	import FieldInfoAnnotation from '$lib/components/Fields/FieldInfoAnnotation.svelte';
@@ -15,16 +21,7 @@
 	/** @type {ArrayFieldProps} */
 	let { label, schema, data = $bindable(), originalData } = $props();
 
-	/**
-	 * @param {DiffEntry<any>} item
-	 * @param {number} diffIndex
-	 */
-	const restoreRemoved = (item, diffIndex) => {
-		if (!arrayDiff || !item.originalIndex) return;
-		const predecessor = [...arrayDiff.slice(0, diffIndex)].reverse().find((e) => e.index !== null);
-		const insertAt = predecessor?.index ? predecessor.index + 1 : 0;
-		data.splice(insertAt, 0, structuredClone(originalData[item.originalIndex]));
-	};
+	let details = $state();
 
 	/** @type {any[]} */
 	const dataArray = $derived(/** @type {any[]} */ (data));
@@ -38,14 +35,38 @@
 	const itemSchema = $derived(
 		/** @type {JSONSchema7} */ (Array.isArray(schema.items) ? schema.items[0] : schema.items)
 	);
+
+	const addItem = async () => {
+		data.push(inferEmptyValue(itemSchema));
+		details.open = true;
+		await tick();
+		const newItem = details.children[details.childElementCount - 1];
+		newItem.scrollIntoView({
+			behavior: 'smooth',
+			block: 'center'
+		});
+		newItem.querySelector('.value').focus();
+	};
+
+	/**
+	 * @param {DiffEntry<any>} item
+	 * @param {number} diffIndex
+	 */
+	const restoreRemoved = (item, diffIndex) => {
+		if (!arrayDiff || !item.originalIndex) return;
+		const predecessor = [...arrayDiff.slice(0, diffIndex)].reverse().find((e) => e.index !== null);
+		const insertAt = predecessor?.index ? predecessor.index + 1 : 0;
+		data.splice(insertAt, 0, structuredClone(originalData[item.originalIndex]));
+	};
 </script>
 
-<details open>
+<details open bind:this={details}>
 	<summary>
 		{#if itemSchema && typeof itemSchema === 'object' && itemSchema.description}
 			<FieldInfoAnnotation description={itemSchema.description} />
 		{/if}
 		{label}
+		<Button iconDescription="Add Item" icon={Add} size="small" on:click={addItem} />
 	</summary>
 	{#each arrayDiff as item, i (i)}
 		{@const _itemSchema = itemSchema}
@@ -74,8 +95,6 @@
 	{/each}
 </details>
 
-<!-- <button onclick={() => value.push(inferEmptyValue(value))}>+ Add item</button> -->
-
 <style>
 	details {
 		padding: 1rem;
@@ -91,6 +110,10 @@
 
 		&:hover {
 			background-color: rgba(0, 0, 0, 0.1);
+		}
+
+		:global(button) {
+			float: right;
 		}
 	}
 

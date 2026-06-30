@@ -6,6 +6,7 @@ export { default as Unflagged } from 'carbon-icons-svelte/lib/Flag.svelte';
 
 export { default as Modified } from 'carbon-icons-svelte/lib/ResultDraft.svelte';
 
+export { default as Add } from 'carbon-icons-svelte/lib/AddLarge.svelte';
 export { default as Delete } from 'carbon-icons-svelte/lib/TrashCan.svelte';
 
 export { default as Undo } from 'carbon-icons-svelte/lib/Undo.svelte';

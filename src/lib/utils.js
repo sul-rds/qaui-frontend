@@ -153,3 +153,25 @@ export function diffArrays(a, b, eq, similarityFn, threshold = 0.5) {
 	}
 	return result;
 }
+
+/**
+ * @param {JSONSchema7} itemSchema
+ * @returns {any}
+ */
+export function inferEmptyValue(itemSchema) {
+	switch (itemSchema?.type) {
+		case 'string':
+			return '';
+		case 'number':
+		case 'integer':
+			return 0;
+		case 'boolean':
+			return false;
+		case 'object':
+			return {};
+		case 'array':
+			return [];
+		default:
+			return '';
+	}
+}
