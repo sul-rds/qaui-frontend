@@ -92,6 +92,8 @@
 				status={item.status}
 			/>
 		{/if}
+	{:else}
+		<span>[No items]</span>
 	{/each}
 </details>
 
@@ -100,6 +102,11 @@
 		padding: 1rem;
 		background: rgba(0, 0, 0, 0.1);
 		border: 1px solid rgba(0, 0, 0, 1);
+
+		> span {
+			opacity: 0.5;
+			margin-left: 1.5rem;
+		}
 	}
 
 	summary {

@@ -63,9 +63,9 @@
 		class:added={status === 'added'}
 		contenteditable={status !== 'removed'}
 		use:tooltip={{
-			content: `Original value: ${originalValue}`,
+			content: `Original value: ${originalValue ?? '[empty]'}`,
 			placement: 'top-start',
-			enabled: modified
+			enabled: status === 'modified' || (status === undefined && modified)
 		}}
 		bind:this={input}
 		oninput={() => (value = input.textContent === '' ? null : input.textContent)}
