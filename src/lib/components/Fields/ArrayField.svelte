@@ -3,7 +3,6 @@
 
 	import { Button } from 'carbon-components-svelte';
 
-	import { tooltip } from '$lib/actions/tooltip';
 	import { Add } from '$lib/icons';
 	import { diffArrays, deepEqual, inferEmptyValue, similarity } from '$lib/utils';
 
@@ -53,9 +52,9 @@
 	 * @param {number} diffIndex
 	 */
 	const restoreRemoved = (item, diffIndex) => {
-		if (!arrayDiff || !item.originalIndex) return;
+		if (!arrayDiff || item.originalIndex == null) return;
 		const predecessor = [...arrayDiff.slice(0, diffIndex)].reverse().find((e) => e.index !== null);
-		const insertAt = predecessor?.index ? predecessor.index + 1 : 0;
+		const insertAt = predecessor !== undefined ? predecessor.index + 1 : 0;
 		data.splice(insertAt, 0, structuredClone(originalData[item.originalIndex]));
 	};
 </script>
@@ -75,8 +74,7 @@
 				data={item.value}
 				originalData={item.value}
 				schema={_itemSchema}
-				label={item.index === null ? undefined : item.index + 1}
-				onDelete={() => data.splice(item.index, 1)}
+				label="[removed]"
 				onReset={() => restoreRemoved(item, i)}
 				status={item.status}
 			/>

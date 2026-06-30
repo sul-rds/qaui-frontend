@@ -104,8 +104,8 @@ export function diffArrays(a, b, eq, similarityFn, threshold = 0.5) {
 		for (let j = 1; j <= n; j++) {
 			const sim = similarityFn(a[i - 1], b[j - 1]);
 			if (sim >= threshold) {
-				// Treat as a match, weighted by similarity
-				table[i][j] = table[i - 1][j - 1] + sim;
+				// Treat as a match, weighted by similarity, but allow skipping if it gives a better score
+				table[i][j] = Math.max(table[i - 1][j - 1] + sim, table[i - 1][j], table[i][j - 1]);
 			} else {
 				table[i][j] = Math.max(table[i - 1][j], table[i][j - 1]);
 			}
@@ -118,7 +118,7 @@ export function diffArrays(a, b, eq, similarityFn, threshold = 0.5) {
 		j = n;
 	while (i > 0 || j > 0) {
 		const sim = i > 0 && j > 0 ? similarityFn(a[i - 1], b[j - 1]) : 0;
-		if (i > 0 && j > 0 && sim >= threshold) {
+		if (i > 0 && j > 0 && sim >= threshold && table[i][j] === table[i - 1][j - 1] + sim) {
 			result.unshift(
 				/** @type {DiffEntry<T>} */ ({
 					status: sim === 1 ? 'unmodified' : 'modified',

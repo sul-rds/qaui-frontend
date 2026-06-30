@@ -37,7 +37,12 @@
 		{onReset}
 	/>
 {:else if type === 'object'}
-	<ObjectField {label} {schema} bind:data {originalData} />
+	{#if status === 'removed'}
+		<!-- this branching is to prevent ownership_invalid_binding -->
+		<ObjectField {label} {schema} {data} {originalData} {status} {onDelete} />
+	{:else}
+		<ObjectField {label} {schema} bind:data {originalData} {status} {onDelete} />
+	{/if}
 {:else if type === 'array'}
 	<ArrayField {label} {schema} bind:data {originalData} />
 {/if}
