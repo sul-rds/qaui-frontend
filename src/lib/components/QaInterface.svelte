@@ -21,7 +21,7 @@
 
 <article>
 	<section class="fields">
-		<Fields bind:data {originalData} {schema} />
+		<Fields bind:data {originalData} {schema} top={true} />
 		<div class="actions">
 			<Button
 				kind="secondary"

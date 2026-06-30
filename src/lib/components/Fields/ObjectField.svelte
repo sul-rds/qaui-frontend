@@ -1,23 +1,34 @@
 <script>
 	import { Button } from 'carbon-components-svelte';
 
-	import { Delete } from '$lib/icons';
+	import { Delete, Undo } from '$lib/icons';
 
 	import Fields from '$lib/components/Fields.svelte';
 	import FieldInfoAnnotation from '$lib/components/Fields/FieldInfoAnnotation.svelte';
 
 	/**
 	 * @typedef {Object} ObjectFieldProps
+	 * @prop {boolean} [top]
 	 * @prop {string|number} [label]
 	 * @prop {JSONSchema7} schema
 	 * @prop {{ [key: string]: any }} data
 	 * @prop {{ [key: string]: any }} originalData
 	 * @prop {DiffStatus} [status]
 	 * @prop {Function} [onDelete]
+	 * @prop {Function} [onReset]
 	 */
 
 	/** @type {ObjectFieldProps} */
-	let { label, schema, data = $bindable(), originalData, status, onDelete } = $props();
+	let {
+		top,
+		label,
+		schema,
+		data = $bindable(),
+		originalData,
+		status,
+		onDelete,
+		onReset
+	} = $props();
 
 	/** @param {string} key */
 	function getObjectSchema(key) {
@@ -38,7 +49,7 @@
 	}
 </script>
 
-{#if label !== undefined}
+{#if !top}
 	<details
 		open
 		class:modified={status === 'modified'}
@@ -47,7 +58,7 @@
 	>
 		<summary>
 			{#if schema.description}<FieldInfoAnnotation description={schema.description} />{/if}
-			{label}
+			{status === 'removed' ? '[removed]' : label}
 			{#if onDelete}
 				<Button
 					iconDescription="Delete"
@@ -55,6 +66,15 @@
 					size="small"
 					on:click={() => onDelete()}
 					disabled={status === 'removed'}
+				/>
+			{/if}
+			{#if onReset}
+				<Button
+					iconDescription="Restore"
+					icon={Undo}
+					size="small"
+					on:click={() => onReset()}
+					disabled={status !== 'removed'}
 				/>
 			{/if}
 		</summary>
@@ -93,8 +113,8 @@
 		}
 
 		&.removed {
-			background-color: hsl(from var(--removed) h s 85%);
-			opacity: 0.6;
+			background-color: hsl(from var(--removed) h s 85% / 0.6);
+			color: rgba(0, 0, 0, 0.6);
 			outline: 2px dotted var(--removed);
 			text-decoration: line-through;
 		}

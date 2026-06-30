@@ -73,7 +73,7 @@
 			selectText(/** @type {HTMLSpanElement} */ (evt.target))}
 	>
 	</span>
-	{#if onReset && (status === 'modified' || status === 'removed' || (status === undefined && modified))}
+	{#if status === 'modified' || status === 'removed' || (status === undefined && modified)}
 		<Button
 			iconDescription="Revert"
 			icon={Undo}

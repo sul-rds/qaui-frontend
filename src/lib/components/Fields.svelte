@@ -5,6 +5,7 @@
 
 	/**
 	 * @typedef {Object} FieldsProps
+	 * @prop {boolean} [top]
 	 * @prop {string|number} [label]
 	 * @prop {JSONSchema7} schema
 	 * @prop {{ [key: string]: any }} data
@@ -15,7 +16,16 @@
 	 */
 
 	/** @type {FieldsProps} */
-	let { label, schema, data = $bindable(), originalData, status, onDelete, onReset } = $props();
+	let {
+		top,
+		label,
+		schema,
+		data = $bindable(),
+		originalData,
+		status,
+		onDelete,
+		onReset
+	} = $props();
 
 	const type = $derived(
 		Array.isArray(data)
@@ -39,9 +49,9 @@
 {:else if type === 'object'}
 	{#if status === 'removed'}
 		<!-- this branching is to prevent ownership_invalid_binding -->
-		<ObjectField {label} {schema} {data} {originalData} {status} {onDelete} />
+		<ObjectField {top} {label} {schema} {data} {originalData} {status} {onReset} />
 	{:else}
-		<ObjectField {label} {schema} bind:data {originalData} {status} {onDelete} />
+		<ObjectField {top} {label} {schema} bind:data {originalData} {status} {onDelete} />
 	{/if}
 {:else if type === 'array'}
 	<ArrayField {label} {schema} bind:data {originalData} />

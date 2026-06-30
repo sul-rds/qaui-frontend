@@ -55,7 +55,7 @@
 		if (!arrayDiff || item.originalIndex == null) return;
 		const predecessor = [...arrayDiff.slice(0, diffIndex)].reverse().find((e) => e.index != null);
 		const insertAt = predecessor?.index != null ? predecessor.index + 1 : 0;
-		data.splice(insertAt, 0, structuredClone(originalData[item.originalIndex]));
+		data.splice(insertAt, 0, structuredClone($state.snapshot(originalData[item.originalIndex])));
 	};
 </script>
 
@@ -74,7 +74,6 @@
 				data={item.value}
 				originalData={item.value}
 				schema={_itemSchema}
-				label="[removed]"
 				onReset={() => restoreRemoved(item, i)}
 				status={item.status}
 			/>
