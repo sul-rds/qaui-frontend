@@ -1,4 +1,6 @@
 test-results
+__screenshots__
+.vitest-attachments
 node_modules
 
 # Output
