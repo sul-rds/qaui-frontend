@@ -26,7 +26,11 @@
 		toggleFlagged
 	} = $props();
 
-	let showNotesPanel = $state(false);
+	let showNotesPanel = $state(sessionStorage.getItem('qa-notes-panel') === 'true');
+
+	$effect(() => {
+		sessionStorage.setItem('qa-notes-panel', String(showNotesPanel));
+	});
 </script>
 
 {#if showNotesPanel}
