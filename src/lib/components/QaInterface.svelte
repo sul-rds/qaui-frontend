@@ -1,7 +1,8 @@
 <script>
-	import { Button, ImageLoader, Loading } from 'carbon-components-svelte';
+	import { Button, ImageLoader, Loading, TextArea } from 'carbon-components-svelte';
+	import { slide } from 'svelte/transition';
 
-	import { Approved, Flagged, Unapproved, Unflagged, Reset } from '$lib/icons';
+	import { Approved, Flagged, Unapproved, Unflagged, Reset, Notes } from '$lib/icons';
 
 	import Fields from '$components/Fields.svelte';
 
@@ -16,15 +17,48 @@
 	 */
 
 	/** @type {FieldsProps} */
-	let { image, data = $bindable(), originalData, schema, toggleApproved, toggleFlagged } = $props();
+	let {
+		image = $bindable(),
+		data = $bindable(),
+		originalData,
+		schema,
+		toggleApproved,
+		toggleFlagged
+	} = $props();
+
+	let showNotesPanel = $state(false);
 </script>
 
+{#if showNotesPanel}
+	<section class="notes-panel" transition:slide={{ duration: 200 }}>
+		<dl>
+			<dt>Title</dt>
+			<dd>{image.title}</dd>
+			<dt>Original Data Source</dt>
+			<dd>{image.data_source ?? '—'}</dd>
+			<dt>Created</dt>
+			<dd>{image.created}</dd>
+			<dt>Last Updated</dt>
+			<dd>{image.updated}</dd>
+		</dl>
+		<TextArea light placeholder="Image Notes..." bind:value={image.notes} />
+	</section>
+{/if}
 <article>
 	<section class="fields">
-		<Fields bind:data {originalData} {schema} top={true} />
 		<div class="actions">
 			<Button
-				kind="secondary"
+				size="small"
+				kind="tertiary"
+				icon={Notes}
+				expressive
+				onclick={() => (showNotesPanel = !showNotesPanel)}
+			>
+				{showNotesPanel ? 'Hide Notes' : 'Notes'}
+			</Button>
+			<Button
+				size="small"
+				kind="danger"
 				icon={Reset}
 				expressive
 				disabled={!image.modified}
@@ -33,6 +67,7 @@
 				Revert
 			</Button>
 			<Button
+				size="small"
 				kind="secondary"
 				icon={image.flagged || false ? Unflagged : Flagged}
 				expressive
@@ -41,6 +76,7 @@
 				{image.flagged ? 'Unflag' : 'Flag'}
 			</Button>
 			<Button
+				size="small"
 				icon={image.approved ? Unapproved : Approved}
 				expressive
 				onclick={() => toggleApproved()}
@@ -48,6 +84,7 @@
 				{image.approved ? 'Unapprove' : 'Approve'}
 			</Button>
 		</div>
+		<Fields bind:data {originalData} {schema} top={true} />
 	</section>
 
 	<section class="image">
@@ -65,27 +102,27 @@
 		gap: 2rem;
 		height: 100%;
 		overflow: hidden;
-	}
 
-	section {
-		width: 50%;
-		height: 100%;
+		section {
+			width: 50%;
+			height: 100%;
 
-		&.fields {
-			display: flex;
-			flex-direction: column;
-			gap: 0.5rem;
-			overflow-y: scroll;
-			padding-right: 0.5rem;
-		}
+			&.fields {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+				overflow-y: scroll;
+				padding-right: 0.5rem;
+			}
 
-		&.image {
-			overflow-y: auto;
-		}
+			&.image {
+				overflow-y: auto;
+			}
 
-		&.image:not(:has(img)) {
-			place-content: center;
-			display: grid;
+			&.image:not(:has(img)) {
+				place-content: center;
+				display: grid;
+			}
 		}
 	}
 
@@ -95,7 +132,32 @@
 		justify-content: end;
 
 		:global(button) {
-			min-width: 12rem;
+			margin: 0;
+		}
+	}
+
+	.notes-panel {
+		align-items: start;
+		background: rgba(0, 0, 0, 0.1);
+		display: flex;
+		gap: 1rem;
+		padding: 1rem;
+		width: 100%;
+
+		dl {
+			display: grid;
+			gap: 0.25rem 1rem;
+			grid-template-columns: auto 1fr;
+			margin: 0;
+
+			dt {
+				font-weight: 600;
+			}
+
+			dd {
+				margin: 0;
+				padding: 0.25rem 0;
+			}
 		}
 	}
 </style>

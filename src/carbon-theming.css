@@ -34,6 +34,18 @@
 	}
 }
 
+.bx--btn--tertiary {
+	border-color: var(--primary);
+	color: var(--primary);
+
+	&:hover,
+	&:focus,
+	&.active {
+		color: white;
+		background-color: var(--primary);
+	}
+}
+
 .bx--btn.bx--btn--icon-only.bx--tooltip__trigger:focus {
 	border-color: var(--primary);
 }
@@ -68,4 +80,10 @@
 /* Progress Bar */
 .bx--progress-bar__bar {
 	background-color: var(--primary);
+}
+
+/* Form Elements */
+.bx--text-area:focus,
+.bx--text-area:active {
+	outline-color: var(--primary);
 }

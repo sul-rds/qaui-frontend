@@ -11,3 +11,5 @@ export { default as Delete } from 'carbon-icons-svelte/lib/TrashCan.svelte';
 
 export { default as Undo } from 'carbon-icons-svelte/lib/Undo.svelte';
 export { default as Reset } from 'carbon-icons-svelte/lib/Reset.svelte';
+
+export { default as Notes } from 'carbon-icons-svelte/lib/Catalog.svelte';

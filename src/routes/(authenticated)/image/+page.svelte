@@ -49,13 +49,18 @@
 	// eslint-disable-next-line svelte/prefer-writable-derived
 	let data = $state({});
 
-	const debouncedSave = debounce(() => {
+	const debouncedSaveData = debounce(() => {
 		console.log('Saving...');
 		image.modified = !deepEqual($state.snapshot(data), $state.snapshot(image.original_data));
 		updateImageRecord(image.id, {
 			data: $state.snapshot(data),
 			modified: image.modified
 		}).then(() => (saving = false));
+	}, 500);
+
+	const debouncedSaveNotes = debounce((notes) => {
+		console.log('Saving Notes...');
+		updateImageRecord(image.id, { notes }).then(() => (saving = false));
 	}, 500);
 
 	const toggleApproved = () => {
@@ -88,8 +93,15 @@
 			return;
 		}
 		saving = true;
-		debouncedSave();
-		return () => debouncedSave.cancel();
+		debouncedSaveData();
+		return () => debouncedSaveData.cancel();
+	});
+
+	$effect(() => {
+		if (!image) return;
+		saving = true;
+		debouncedSaveNotes(image.notes);
+		return () => debouncedSaveNotes.cancel();
 	});
 
 	loadData(page.url.searchParams.get('imageId') || '');
@@ -147,9 +159,8 @@
 			onclick={() => loadData(nextImage.id)}
 		/>
 	</div>
-	<p>Original Data Source: {image.data_source}</p>
 	<QaInterface
-		{image}
+		bind:image
 		bind:data
 		originalData={image.original_data}
 		schema={project.schema}
