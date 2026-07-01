@@ -49,6 +49,29 @@ export function deepEqual(a, b) {
 }
 
 /**
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
+ */
+function levenshteinDistance(a, b) {
+	const m = a.length;
+	const n = b.length;
+	const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+	for (let i = 0; i <= m; i++) dp[i][0] = i;
+	for (let j = 0; j <= n; j++) dp[0][j] = j;
+	for (let i = 1; i <= m; i++) {
+		for (let j = 1; j <= n; j++) {
+			if (a[i - 1] === b[j - 1]) {
+				dp[i][j] = dp[i - 1][j - 1];
+			} else {
+				dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+			}
+		}
+	}
+	return dp[m][n];
+}
+
+/**
  * @param {unknown} a
  * @param {unknown} b
  * @returns {number} 0 (completely different) to 1 (identical)
@@ -59,11 +82,10 @@ export function similarity(a, b) {
 	if (a === null || b === null) return 0;
 
 	if (typeof a === 'string' && typeof b === 'string') {
-		// longer common prefix/length ratio is a cheap string similarity
 		const longer = Math.max(a.length, b.length);
 		if (longer === 0) return 1;
-		const matching = [...a].filter((ch, i) => ch === b[i]).length;
-		return matching / longer;
+		const dist = levenshteinDistance(a, b);
+		return 1 - dist / longer;
 	}
 
 	if (typeof a === 'object' && typeof b === 'object' && !Array.isArray(a) && !Array.isArray(b)) {
