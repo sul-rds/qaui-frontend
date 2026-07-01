@@ -105,6 +105,7 @@ export type ImagesRecord<Tdata = unknown, Toriginal_data = unknown> = {
 	image_blob?: FileNameString
 	image_url?: string
 	modified?: boolean
+	notes?: string
 	original_data?: null | Toriginal_data
 	project?: RecordIdString
 	title?: string
