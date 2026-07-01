@@ -2,6 +2,7 @@ import { execSync } from 'child_process';
 import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { optimizeCss } from 'carbon-preprocess-svelte';
+import { playwright } from '@vitest/browser-playwright';
 
 const commit = execSync('git rev-parse --short HEAD').toString().trim();
 const buildTime = new Date().toISOString();
@@ -19,10 +20,10 @@ export default defineConfig({
 				extends: './vite.config.js',
 				test: {
 					name: 'client',
-					environment: 'browser',
 					browser: {
 						enabled: true,
-						provider: 'playwright',
+						headless: true,
+						provider: playwright(),
 						instances: [{ browser: 'chromium' }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
