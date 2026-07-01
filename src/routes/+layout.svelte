@@ -8,7 +8,8 @@
 	} from 'carbon-components-svelte';
 	import UserAvatarFilledAlt from 'carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte';
 
-	import '$/carbon-theming.css';
+	import '$lib/styles/carbon-theming.css';
+	import '$lib/styles/styles.css';
 	import '@fontsource-variable/mulish';
 	import favicon from '$lib/assets/sul.41x40.png';
 

@@ -1,0 +1,26 @@
+table {
+	border-collapse: collapse;
+	width: 100%;
+
+	th {
+		border-bottom: 2px solid var(--primary);
+		font-weight: bold;
+		padding: 0.5rem 0.75rem;
+		text-align: left;
+
+		button::before,
+		button::after {
+			color: rgba(var(--primary-rgb), 0.85);
+		}
+	}
+
+	td {
+		border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+		padding: 0.5rem 0.75rem;
+		vertical-align: top;
+	}
+
+	tr:hover td {
+		background-color: rgba(var(--primary-rgb), 0.04);
+	}
+}

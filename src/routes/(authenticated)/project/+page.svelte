@@ -1,10 +1,12 @@
 <script>
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { InlineNotification } from 'carbon-components-svelte';
+	import { Approved, Modified, Flagged } from '$lib/icons';
 
 	import { getProjectById, getImagesByProjectId } from '$lib/pocketbase';
 
-	import ImageTable from '$components/ImageTable.svelte';
+	import Table from '$lib/components/Table.svelte';
 
 	let project = $state();
 	/** @type {Promise<ImageWithApprovedBy[]>|ImageWithApprovedBy[]} */
@@ -15,7 +17,100 @@
 		project = getProjectById(projectId);
 		projectImages = getImagesByProjectId(projectId);
 	}
+
+	const fields = [
+		{
+			key: 'image',
+			accessor: 'image_url',
+			label: 'Image',
+			sortable: false,
+			width: 'calc(50% - 265px)',
+			cellRender: imageCellRender
+		},
+		{
+			key: 'title',
+			accessor: 'title',
+			label: 'Title',
+			sortable: true,
+			width: '1fr',
+			cellRender: titleCellRender
+		},
+		{
+			key: 'data_source',
+			accessor: 'data_source',
+			label: 'Data Source',
+			sortable: true,
+			width: 'max(200px, 10%)'
+		},
+		{
+			key: 'approved_by',
+			label: 'Approved_By',
+			accessor: 'approved_by',
+			sortable: true,
+			width: '150px',
+			cellRender: approvedByCellRender
+		},
+		{
+			key: 'approved',
+			accessor: 'approved',
+			sortable: true,
+			defaultSortDirection: 'desc',
+			width: '60px',
+			headerRender: headerRender,
+			cellRender: cellRender
+		},
+		{
+			key: 'modified',
+			accessor: 'modified',
+			sortable: true,
+			defaultSortDirection: 'desc',
+			width: '60px',
+			headerRender: headerRender,
+			cellRender: cellRender
+		},
+		{
+			key: 'flagged',
+			accessor: 'flagged',
+			sortable: true,
+			defaultSortDirection: 'desc',
+			width: '60px',
+			headerRender: headerRender,
+			cellRender: cellRender
+		}
+	];
 </script>
+
+{#snippet headerRender({ value, item, field })}
+	{#if field.key === 'approved'}
+		<Approved />
+	{:else if field.key === 'modified'}
+		<Modified />
+	{:else if field.key === 'flagged'}
+		<Flagged />
+	{/if}
+{/snippet}
+
+{#snippet cellRender({ value, item, field })}
+	{#if field.key === 'approved' && value}
+		<Approved />
+	{:else if field.key === 'modified' && value}
+		<Modified />
+	{:else if field.key === 'flagged' && value}
+		<Flagged />
+	{/if}
+{/snippet}
+
+{#snippet imageCellRender({ value, item, field })}
+	<img src={item.image_url} alt={item.title} />
+{/snippet}
+
+{#snippet titleCellRender({ value, item, field })}
+	<a href={resolve('/image') + '?imageId=' + item.id}>{item.title}</a>
+{/snippet}
+
+{#snippet approvedByCellRender({ value, item, field })}
+	{item.expand.approved_by?.name}
+{/snippet}
 
 <svelte:head>
 	{#if !projectId}
@@ -38,7 +133,9 @@
 {#await project then project}
 	<h3>{project?.name}</h3>
 	{#await projectImages then images}
-		<ImageTable {images} />
+		<section>
+			<Table data={images} {fields} keyAccessor="id" id="images-table" pageSize={15} />
+		</section>
 	{/await}
 {:catch}
 	<InlineNotification lowContrast hideCloseButton kind="error" title="Invalid Project ID">
@@ -49,7 +146,45 @@
 {/await}
 
 <style>
-	:global(.bx--form-item:has(.bx--toggle-input)) {
-		flex: 0;
+	section {
+		margin: 0 auto;
+		width: 100%;
+	}
+
+	:global(#images-table) {
+		/* override default property set in Table component */
+		--row-height: 40px;
+	}
+
+	:global(#images-table thead th button) {
+		/* sort toggle buttons */
+		&:before,
+		&:after {
+			opacity: 0.5;
+		}
+	}
+
+	:global(#images-table th) {
+		&.approved,
+		&.modified,
+		&.flagged {
+			padding-left: 0.75rem;
+		}
+	}
+
+	:global(#images-table td) {
+		height: var(--row-height);
+		overflow: hidden;
+		position: relative;
+		text-overflow: ellipsis;
+		text-wrap: nowrap;
+
+		&.image {
+			overflow: hidden;
+		}
+	}
+
+	:global(#images-table img) {
+		width: 100%;
 	}
 </style>
