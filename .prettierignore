@@ -5,6 +5,10 @@ yarn.lock
 bun.lock
 bun.lockb
 
+# Tests
+*.spec.js
+__tests__
+
 # Miscellaneous
 src/lib/pocketbase/generated-types.ts
 /static/
