@@ -56,10 +56,10 @@ export async function getImagesByProjectId(id) {
 /**
  * Retrieves a single image record from the PocketBase instance by its ID.
  * @param {string} id - The ID of the image to retrieve.
- * @returns {Promise<ImagesResponse>} The retrieved image record.
+ * @returns {Promise<ImageWithApprovedBy>} The retrieved image record.
  */
 export async function getImageById(id) {
-	return pb.collection('images').getOne(id);
+	return pb.collection('images').getOne(id, { expand: 'approved_by' });
 }
 
 /**

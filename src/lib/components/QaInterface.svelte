@@ -8,7 +8,7 @@
 
 	/**
 	 * @typedef {Object} FieldsProps
-	 * @prop {ImagesResponse} image
+	 * @prop {ImageWithApprovedBy} image
 	 * @prop {{ [key: string]: any }} data
 	 * @prop {{ [key: string]: any }} originalData
 	 * @prop {JSONSchema7} schema
@@ -44,6 +44,10 @@
 			<dd>{image.created}</dd>
 			<dt>Last Updated</dt>
 			<dd>{image.updated}</dd>
+			{#if image.approved_by}
+				<dt>Approved By</dt>
+				<dd>{image.expand.approved_by.name}</dd>
+			{/if}
 		</dl>
 		<TextArea light placeholder="Image Notes..." bind:value={image.notes} />
 	</section>
