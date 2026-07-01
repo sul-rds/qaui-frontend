@@ -1,4 +1,5 @@
 <script>
+	import { getContext } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { InlineNotification } from 'carbon-components-svelte';
@@ -17,6 +18,12 @@
 		project = getProjectById(projectId);
 		projectImages = getImagesByProjectId(projectId);
 	}
+
+	const header = getContext('header');
+	$effect(() => {
+		project?.then((_project) => header.set([_project?.name]));
+		return () => header.set();
+	});
 
 	const fields = [
 		{

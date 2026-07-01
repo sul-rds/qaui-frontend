@@ -1,4 +1,5 @@
 <script>
+	import { setContext } from 'svelte';
 	import {
 		Header,
 		HeaderUtilities,
@@ -14,6 +15,17 @@
 	import favicon from '$lib/assets/sul.41x40.png';
 
 	let { children } = $props();
+
+	let platformName = $state('Structured Data from Images - QA UI');
+	setContext('header', {
+		get: () => platformName,
+		set: (value) => {
+			platformName = 'Structured Data from Images - QA UI';
+			if (value && value.every(Boolean)) {
+				platformName += ' → ' + value.join(' → ');
+			}
+		}
+	});
 </script>
 
 <svelte:head>
@@ -22,7 +34,7 @@
 	<meta name="dcterms.modified" content={__BUILD_TIME__} />
 </svelte:head>
 
-<Header companyName="SUL-RDS" platformName="Structured Data from Images - QA UI" href="/">
+<Header companyName="SUL-RDS" {platformName} href="/">
 	<img slot="company" src={favicon} alt="Stanford University Libraries" class="sul-logo" />
 	<svelte:fragment slot="skipToContent">
 		<SkipToContent />

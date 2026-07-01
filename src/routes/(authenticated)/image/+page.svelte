@@ -2,6 +2,7 @@
 	/**
 	 * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
 	 */
+	import { getContext } from 'svelte';
 	import { page } from '$app/state';
 	import { Button, InlineNotification, Loading } from 'carbon-components-svelte';
 	import ArrowLeft from 'carbon-icons-svelte/lib/ArrowLeft.svelte';
@@ -102,6 +103,14 @@
 		saving = true;
 		debouncedSaveNotes(image.notes);
 		return () => debouncedSaveNotes.cancel();
+	});
+
+	const header = getContext('header');
+	$effect(() => {
+		Promise.all([project, image]).then(([_project, _image]) =>
+			header.set([_project?.name, _image?.title])
+		);
+		return () => header.set();
 	});
 
 	loadData(page.url.searchParams.get('imageId') || '');
