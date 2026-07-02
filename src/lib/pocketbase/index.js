@@ -47,10 +47,12 @@ export async function getProjectById(id) {
 /**
  * Retrieves all image records associated with a given project ID.
  * @param {string} id - The ID of the project to retrieve image records for.
+ * @param {string} [filters] - Optional filters to apply to the image records.
  * @returns {Promise<ImageWithApprovedBy[]>} The retrieved image records.
  */
-export async function getImagesByProjectId(id) {
-	return pb.collection('images').getFullList({ filter: `project="${id}"`, expand: 'approved_by' });
+export async function getImagesByProjectId(id, filters) {
+	const filter = filters ? `project="${id}" && ${filters}` : `project="${id}"`;
+	return pb.collection('images').getFullList({ filter, expand: 'approved_by' });
 }
 
 /**

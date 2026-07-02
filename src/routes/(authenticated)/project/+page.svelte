@@ -8,21 +8,44 @@
 	import { getProjectById, getImagesByProjectId } from '$lib/pocketbase';
 
 	import Table from '$lib/components/Table.svelte';
+	import ThreeWayToggle from '$lib/components/ThreeWayToggle.svelte';
+
+	let showApproved = $state('any');
+	let showModified = $state('any');
+	let showFlagged = $state('any');
 
 	let project = $state();
 	/** @type {Promise<ImageWithApprovedBy[]>|ImageWithApprovedBy[]} */
 	let projectImages = $state([]);
 
+	const filterOptions = [
+		{ value: 'any', label: 'any', color: 'var(--primary)' },
+		{ value: 'true', label: 'yes', color: 'var(--primary)' },
+		{ value: 'false', label: 'no', color: 'var(--primary)' }
+	];
+
 	const projectId = page.url.searchParams.get('projectId');
 	if (projectId) {
 		project = getProjectById(projectId);
-		projectImages = getImagesByProjectId(projectId);
 	}
 
 	const header = getContext('header');
 	$effect(() => {
 		project?.then((_project) => header.set([_project?.name]));
 		return () => header.set();
+	});
+
+	$effect(() => {
+		if (!projectId) return;
+		let filters = Object.entries({
+			approved: showApproved,
+			modified: showModified,
+			flagged: showFlagged
+		})
+			.map(([k, v]) => (v !== 'any' ? `${k}=${v}` : null))
+			.filter(Boolean)
+			.join(' && ');
+		projectImages = getImagesByProjectId(projectId, filters);
 	});
 
 	const fields = [
@@ -138,11 +161,44 @@
 {/if}
 
 {#await project then project}
-	<h3>{project?.name}</h3>
+	<header>
+		<h3>{project?.name}</h3>
+
+		{#if projectId}
+			<div class="filters">
+				<label>
+					Approved: <ThreeWayToggle
+						name="approved"
+						bind:value={showApproved}
+						options={filterOptions}
+					/>
+				</label>
+
+				<label>
+					Modified: <ThreeWayToggle
+						name="modified"
+						bind:value={showModified}
+						options={filterOptions}
+					/>
+				</label>
+
+				<label>
+					Flagged: <ThreeWayToggle
+						name="flagged"
+						bind:value={showFlagged}
+						options={filterOptions}
+					/>
+				</label>
+			</div>
+		{/if}
+	</header>
+
 	{#await projectImages then images}
-		<section>
-			<Table data={images} {fields} keyAccessor="id" id="images-table" pageSize={15} />
-		</section>
+		{#if images.length}
+			<section>
+				<Table data={images} {fields} keyAccessor="id" id="images-table" pageSize={15} />
+			</section>
+		{/if}
 	{/await}
 {:catch}
 	<InlineNotification lowContrast hideCloseButton kind="error" title="Invalid Project ID">
@@ -153,6 +209,26 @@
 {/await}
 
 <style>
+	header {
+		align-items: start;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.filters {
+		display: flex;
+		gap: 1rem;
+		justify-content: flex-end;
+		margin-bottom: 1rem;
+
+		label {
+			align-items: start;
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+	}
+
 	section {
 		margin: 0 auto;
 		width: 100%;

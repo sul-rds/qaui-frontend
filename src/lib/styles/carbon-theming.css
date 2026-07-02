@@ -2,25 +2,6 @@
 
 @import 'carbon-components-svelte/css/white.css' layer(base);
 
-/* Theme Colors */
-:root {
-	--panel-background: #b55945ff;
-	--panel-text: white;
-	--primary: #45a1b5;
-	--primary-hover: #7abecc;
-	--primary-active: #30707e;
-
-	--added: #67b767;
-	--removed: #be6767;
-
-	accent-color: var(--primary);
-}
-
-::selection {
-	background-color: var(--primary);
-	color: white;
-}
-
 /* Button and Link Colors */
 .bx--btn--primary:not(.bx--btn--disabled) {
 	background-color: var(--primary);
