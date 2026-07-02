@@ -84,6 +84,12 @@
 
 		await executeSearch(q, { title, data, notes });
 	};
+
+	const markupValue = (value, searchTerm) => {
+		return value
+			.toString()
+			.replace(new RegExp(searchTerm, 'gi'), (match) => `<mark>${match}</mark>`);
+	};
 </script>
 
 <svelte:head>
@@ -115,6 +121,7 @@
 					{#each matches as match (match.path)}
 						{@const path = match.path.split('.').slice(0, -1).join(' > ')}
 						{@const status = ''}
+						{@const markedUpValue = markupValue(match.value, form.q.value)}
 						<span class="path">{path}</span>
 						<div class="field">
 							<span class="label">{match.key}:</span>
@@ -128,7 +135,9 @@
 									placement: 'top-start',
 									enabled: status === 'modified'
 								}}
-								>{match.value}
+							>
+								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+								{@html markedUpValue}
 							</span>
 						</div>
 					{/each}
