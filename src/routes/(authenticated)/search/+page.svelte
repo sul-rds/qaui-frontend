@@ -87,6 +87,7 @@
 	};
 
 	const getStatus = (result, path) => {
+		if (path === 'Notes.') return '';
 		const data = getByPath(result.data, path);
 		const originalData = getByPath(result.original_data, path);
 
