@@ -56,40 +56,42 @@
 		<FieldInfoAnnotation description={schema.description} />
 	{/if}
 	<span class="label">{label}:</span>
-	<span
-		class="value"
-		class:modified={status === 'modified' || (status === undefined && modified)}
-		class:removed={status === 'removed'}
-		class:added={status === 'added'}
-		contenteditable={status !== 'removed'}
-		use:tooltip={{
-			content: `Original value: ${originalValue ?? '[empty]'}`,
-			placement: 'top-start',
-			enabled: status === 'modified' || (status === undefined && modified)
-		}}
-		bind:this={input}
-		oninput={() => (value = input.textContent === '' ? null : input.textContent)}
-		onfocus={(/** @type {FocusEvent} */ evt) =>
-			selectText(/** @type {HTMLSpanElement} */ (evt.target))}
-	>
-	</span>
-	{#if status === 'modified' || status === 'removed' || (status === undefined && modified)}
-		<Button
-			iconDescription="Revert"
-			icon={Undo}
-			size="small"
-			onclick={onReset ? () => onReset() : () => (value = originalValue)}
-		/>
-	{/if}
-	{#if onDelete}
-		<Button
-			iconDescription="Delete"
-			icon={Delete}
-			size="small"
-			on:click={() => onDelete()}
-			disabled={status === 'removed'}
-		/>
-	{/if}
+	<div>
+		<span
+			class="value"
+			class:modified={status === 'modified' || (status === undefined && modified)}
+			class:removed={status === 'removed'}
+			class:added={status === 'added'}
+			contenteditable={status !== 'removed'}
+			use:tooltip={{
+				content: `Original value: ${originalValue ?? '[empty]'}`,
+				placement: 'top-start',
+				enabled: status === 'modified' || (status === undefined && modified)
+			}}
+			bind:this={input}
+			oninput={() => (value = input.textContent === '' ? null : input.textContent)}
+			onfocus={(/** @type {FocusEvent} */ evt) =>
+				selectText(/** @type {HTMLSpanElement} */ (evt.target))}
+		>
+		</span>
+		{#if status === 'modified' || status === 'removed' || (status === undefined && modified)}
+			<Button
+				iconDescription="Revert"
+				icon={Undo}
+				size="small"
+				onclick={onReset ? () => onReset() : () => (value = originalValue)}
+			/>
+		{/if}
+		{#if onDelete}
+			<Button
+				iconDescription="Delete"
+				icon={Delete}
+				size="small"
+				on:click={() => onDelete()}
+				disabled={status === 'removed'}
+			/>
+		{/if}
+	</div>
 </div>
 
 <style>
@@ -101,6 +103,11 @@
 		gap: 0.5rem 0.25rem;
 		margin: 0.15rem 0;
 		padding: 0.25rem 0;
+
+		> div {
+			display: flex;
+			flex: 1 1 0px;
+		}
 	}
 
 	span.label {
