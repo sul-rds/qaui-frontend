@@ -68,6 +68,29 @@
 		return matches;
 	};
 
+	const getByPath = (obj, path) => {
+		const segments = path.split('.');
+		let current = obj;
+
+		for (const segment of segments) {
+			if (current === null || current === undefined) return undefined;
+			const key = Array.isArray(current) ? Number(segment) : segment; // just in case
+			current = current[key];
+		}
+
+		return current;
+	};
+
+	const getStatus = (result, path) => {
+		const data = getByPath(result.data, path);
+		const originalData = getByPath(result.original_data, path);
+
+		if (data === null || data === undefined) return 'removed';
+		if (originalData === null || originalData === undefined) return 'added';
+		if (data !== originalData) return 'modified';
+		return '';
+	};
+
 	const markupValue = (value, searchTerm) => {
 		return value
 			.toString()
@@ -130,7 +153,7 @@
 					</h3>
 					{#each matches as match (match.path)}
 						{@const path = match.path.split('.').slice(0, -1).join(' > ')}
-						{@const status = ''}
+						{@const status = getStatus(result, match.path)}
 						{@const markedUpValue = markupValue(match.value, searchTerm)}
 						<span class="path">{path}</span>
 						<div class="field">
@@ -143,9 +166,9 @@
 								class:removed={status === 'removed'}
 								class:added={status === 'added'}
 								use:tooltip={{
-									content: `Original value: '[empty]'`,
+									content: `Original Value: ${getByPath(result.original_data, match.path) ?? '[empty]'}`,
 									placement: 'top-start',
-									enabled: status === 'modified'
+									enabled: status === 'modified' || status === 'added'
 								}}
 							>
 								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
