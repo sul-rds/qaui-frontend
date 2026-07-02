@@ -1,11 +1,11 @@
 <script>
-	import { goto } from '$app/navigation';
+	import { goto, replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { InlineNotification } from 'carbon-components-svelte';
 
 	import { pb } from '$lib/pocketbase';
 	import { tooltip } from '$/lib/actions/tooltip';
+	import { LinkOut } from '$lib/icons';
 
 	let form = $state(/** @type {HTMLFormElement | null} */);
 	let results = $state();
@@ -80,7 +80,7 @@
 
 		const url = new URL(page.url);
 		url.searchParams.set('q', q);
-		window.history.replaceState(null, '', url);
+		replaceState(resolve(`/search?${url.searchParams.toString()}`), page.state);
 
 		await executeSearch(q, { title, data, notes });
 	};
@@ -117,7 +117,11 @@
 			{@const matches = searchObject(result.data, form.q.value)}
 			<section class="result">
 				<div class="match-details">
-					<h3><a href={resolve('/image?imageId=' + result.id)}>{result.title}</a></h3>
+					<h3>
+						<a href={resolve('/image?imageId=' + result.id)} target="_blank"
+							>{result.title} <LinkOut /></a
+						>
+					</h3>
 					{#each matches as match (match.path)}
 						{@const path = match.path.split('.').slice(0, -1).join(' > ')}
 						{@const status = ''}
@@ -148,8 +152,8 @@
 			</section>
 		{/each}
 	</section>
-{:else}
-	<InlineNotification kind="info" title="No Results" />
+{:else if results?.items.length === 0}
+	<p>No results</p>
 {/if}
 
 <style>
@@ -167,8 +171,8 @@
 	}
 
 	div.search-types {
-		margin-top: 0.5rem;
 		margin-left: 1rem;
+		margin-top: 0.5rem;
 	}
 
 	section#results {
@@ -214,6 +218,7 @@
 	}
 
 	span.path {
+		color: #777;
 		display: block;
 		margin-top: 0.75rem;
 	}
@@ -230,9 +235,9 @@
 
 	span.label {
 		display: inline-block;
+		line-height: 1.25;
 		min-width: 1.5rem;
 		text-align: right;
-		line-height: 1.25;
 	}
 
 	span.value {
