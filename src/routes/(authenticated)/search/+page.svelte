@@ -39,7 +39,19 @@
 
 			if (Array.isArray(current)) {
 				current.forEach((item, index) => {
-					walk(item, [...path, index]);
+					const newPath = [...path, index];
+
+					if (item !== null && typeof item === 'object') {
+						walk(item, newPath);
+					} else {
+						if (String(item).toLowerCase().includes(term)) {
+							results.push({
+								path: newPath.join('.'),
+								key: index,
+								value: item
+							});
+						}
+					}
 				});
 				return;
 			}
@@ -49,7 +61,6 @@
 					const newPath = [...path, key];
 
 					if (value !== null && typeof value === 'object') {
-						// Recurse into nested objects/arrays
 						walk(value, newPath);
 					} else {
 						if (String(value).toLowerCase().includes(term)) {
