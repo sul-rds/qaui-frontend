@@ -7,8 +7,8 @@
 
 	import { getProjectById, getImagesByProjectId } from '$lib/pocketbase';
 
-	import Table from '$lib/components/Table.svelte';
-	import ThreeWayToggle from '$lib/components/ThreeWayToggle.svelte';
+	import Table from '$lib/ui-components/Table.svelte';
+	import ThreeWayToggle from '$lib/ui-components/ThreeWayToggle.svelte';
 
 	let showApproved = $state('any');
 	let showModified = $state('any');
