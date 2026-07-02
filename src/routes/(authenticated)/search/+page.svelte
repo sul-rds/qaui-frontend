@@ -1,16 +1,18 @@
 <script>
-	import { goto, replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { page } from '$app/state';
 
-	import { pb } from '$lib/pocketbase';
 	import { tooltip } from '$/lib/actions/tooltip';
 	import { LinkOut } from '$lib/icons';
+	import { pb } from '$lib/pocketbase';
+	import { debounce } from '$lib/utils';
 
-	let form = $state(/** @type {HTMLFormElement | null} */);
 	let results = $state();
+	let searchTerm = $state();
+	let searchData = $state(true);
+	let searchNotes = $state(true);
+	let searchTitle = $state(true);
 
-	async function executeSearch(query, searchFields) {
+	const debouncedSearch = debounce(async (query, searchFields) => {
 		if (!query) return;
 
 		const filter = Object.entries(searchFields)
@@ -21,79 +23,49 @@
 		results = await pb.collection('images').getList(1, 20, {
 			filter: pb.filter(filter, { q: query })
 		});
-	}
+	}, 500);
 
-	$effect(() => {
-		form.q.value = page.url.searchParams.get('q');
-		if (form.q.value) {
-			executeSearch(form.q.value, { title: true, data: true, notes: true });
-		}
-	});
-
-	function searchObject(obj, searchTerm) {
+	const searchObject = (obj, searchTerm) => {
 		const results = [];
 		const term = searchTerm.toLowerCase();
 
-		const walk = (current, path) => {
+		const walk = (current, path, key) => {
 			if (current === null || current === undefined) return;
 
-			if (Array.isArray(current)) {
-				current.forEach((item, index) => {
-					const newPath = [...path, index];
-
-					if (item !== null && typeof item === 'object') {
-						walk(item, newPath);
-					} else {
-						if (String(item).toLowerCase().includes(term)) {
-							results.push({
-								path: newPath.join('.'),
-								key: index,
-								value: item
-							});
-						}
-					}
-				});
-				return;
-			}
-
 			if (typeof current === 'object') {
-				for (const [key, value] of Object.entries(current)) {
-					const newPath = [...path, key];
+				const entries = Array.isArray(current)
+					? current.map((item, index) => [index, item])
+					: Object.entries(current);
 
-					if (value !== null && typeof value === 'object') {
-						walk(value, newPath);
-					} else {
-						if (String(value).toLowerCase().includes(term)) {
-							results.push({
-								path: newPath.join('.'),
-								key,
-								value
-							});
-						}
-					}
+				for (const [entryKey, value] of entries) {
+					walk(value, [...path, entryKey], entryKey);
 				}
 				return;
 			}
+
+			// current is a primitive (string, number, boolean, etc.)
+			if (String(current).toLowerCase().includes(term)) {
+				results.push({ path: path.join('.'), key, value: current });
+			}
 		};
 
-		walk(obj, []);
+		walk(obj, [], null);
 		return results;
-	}
+	};
 
-	const search = async (/** @type {SubmitEvent} */ evt) => {
-		evt.preventDefault();
+	const getMatches = (result, searchTerm) => {
+		const matches = [];
 
-		const formData = new FormData(form);
-		const { q, title, data, notes } = Object.fromEntries(formData.entries());
+		if (searchData) {
+			matches.push(...searchObject(result.data, searchTerm));
+		}
 
-		if (!q) return;
-		if (!title && !data && !notes) return;
-
-		const url = new URL(page.url);
-		url.searchParams.set('q', q);
-		replaceState(resolve(`/search?${url.searchParams.toString()}`), page.state);
-
-		await executeSearch(q, { title, data, notes });
+		if (searchNotes) {
+			if (String(result.notes).toLowerCase().includes(searchTerm.toLowerCase())) {
+				matches.push({ path: 'Notes.', key: null, value: result.notes });
+			}
+		}
+		return matches;
 	};
 
 	const markupValue = (value, searchTerm) => {
@@ -101,6 +73,15 @@
 			.toString()
 			.replace(new RegExp(searchTerm, 'gi'), (match) => `<mark>${match}</mark>`);
 	};
+
+	$effect(() => {
+		results = undefined;
+		if (!searchTerm) return;
+		if (!searchTitle && !searchData && !searchNotes) return;
+
+		debouncedSearch(searchTerm, { title: searchTitle, data: searchData, notes: searchNotes });
+		return () => debouncedSearch.cancel();
+	});
 </script>
 
 <svelte:head>
@@ -108,38 +89,54 @@
 	<meta name="description" content="" />
 </svelte:head>
 
-<form method="GET" onreset={() => goto(resolve('/search'))} onsubmit={search} bind:this={form}>
+<section id="search">
+	<strong>Search:</strong>
 	<div>
-		<input name="q" type="search" />
-		<button type="submit" class="button">Search</button>
-		<button type="reset" class="button">Clear</button>
+		<div>
+			<input name="q" type="search" bind:value={searchTerm} />
+			{#if searchTerm}<button type="reset" class="button" onclick={() => (searchTerm = '')}
+					>Clear</button
+				>{/if}
+		</div>
+		<div class="search-types">
+			<label>
+				<input type="checkbox" defaultChecked name="title" bind:checked={searchTitle} /> Title
+			</label>
+			<label>
+				<input type="checkbox" defaultChecked name="data" bind:checked={searchData} /> Fields
+			</label>
+			<label>
+				<input type="checkbox" defaultChecked name="notes" bind:checked={searchNotes} /> QA Notes
+			</label>
+		</div>
 	</div>
-	<div class="search-types">
-		<strong>Search:</strong>
-		<label><input type="checkbox" name="title" disabled /> Title </label>
-		<label><input type="checkbox" name="data" checked /> Fields</label>
-		<label><input type="checkbox" name="notes" disabled /> Notes</label>
-	</div>
-</form>
+</section>
 
-{#if results?.items.length}
+{#if results?.items?.length}
 	<section id="results">
+		<p>
+			Total results: {results.totalItems} ({Math.min(results.perPage, results.totalItems)} shown)
+		</p>
 		{#each results.items as result, i (/** @type {string} */ result.id)}
-			{@const matches = searchObject(result.data, form.q.value)}
+			{@const matches = getMatches(result, searchTerm)}
 			<section class="result">
 				<div class="match-details">
 					<h3>
-						<a href={resolve('/image?imageId=' + result.id)} target="_blank"
-							>{result.title} <LinkOut /></a
-						>
+						<a href={resolve('/image?imageId=' + result.id)} target="_blank">
+							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+							{@html searchTitle ? markupValue(result.title, searchTerm) : result.title}
+							<LinkOut />
+						</a>
 					</h3>
 					{#each matches as match (match.path)}
 						{@const path = match.path.split('.').slice(0, -1).join(' > ')}
 						{@const status = ''}
-						{@const markedUpValue = markupValue(match.value, form.q.value)}
+						{@const markedUpValue = markupValue(match.value, searchTerm)}
 						<span class="path">{path}</span>
 						<div class="field">
-							<span class="label">{match.key}:</span>
+							{#if match.key !== null}
+								<span class="label">{match.key}:</span>
+							{/if}
 							<span
 								class="value"
 								class:modified={status === 'modified'}
@@ -168,6 +165,12 @@
 {/if}
 
 <style>
+	section#search {
+		align-items: baseline;
+		display: flex;
+		gap: 1rem;
+	}
+
 	input[type='search'] {
 		appearance: none;
 		background-clip: padding-box;
@@ -182,8 +185,7 @@
 	}
 
 	div.search-types {
-		margin-left: 1rem;
-		margin-top: 0.5rem;
+		margin-top: 0.25rem;
 	}
 
 	section#results {
