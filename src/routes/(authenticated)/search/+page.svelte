@@ -1,13 +1,18 @@
 <script>
+	import { replaceState } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 
 	import { tooltip } from '$/lib/actions/tooltip';
 	import { LinkOut } from '$lib/icons';
 	import { pb } from '$lib/pocketbase';
 	import { debounce, escapeRegExp } from '$lib/utils';
 
+	const params = page.url.searchParams;
+
+	let initial = true;
 	let results = $state();
-	let searchTerm = $state();
+	let searchTerm = $state(params.get('q') ?? '');
 	let searchData = $state(true);
 	let searchNotes = $state(true);
 	let searchTitle = $state(true);
@@ -98,11 +103,25 @@
 	};
 
 	$effect(() => {
-		results = undefined;
-		if (!searchTerm) return;
-		if (!searchTitle && !searchData && !searchNotes) return;
+		const url = new URL(page.url);
 
-		debouncedSearch(searchTerm, { title: searchTitle, data: searchData, notes: searchNotes });
+		if (searchTerm) {
+			url.searchParams.set('q', searchTerm);
+		} else {
+			url.searchParams.delete('q');
+		}
+
+		if (!initial) {
+			// eslint-disable-next-line svelte/no-navigation-without-resolve
+			replaceState(url, { keepFocus: true, noScroll: true });
+		}
+		initial = false;
+
+		results = undefined;
+
+		if (searchTerm && (searchTitle || searchData || searchNotes)) {
+			debouncedSearch(searchTerm, { title: searchTitle, data: searchData, notes: searchNotes });
+		}
 		return () => debouncedSearch.cancel();
 	});
 </script>
