@@ -7,6 +7,7 @@
 		SkipToContent,
 		Content
 	} from 'carbon-components-svelte';
+	import Search from 'carbon-icons-svelte/lib/Search.svelte';
 	import UserAvatarFilledAlt from 'carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte';
 
 	import '$lib/styles/carbon-theming.css';
@@ -40,6 +41,7 @@
 		<SkipToContent />
 	</svelte:fragment>
 	<HeaderUtilities>
+		<HeaderActionLink icon={Search} href="/search"></HeaderActionLink>
 		<HeaderActionLink icon={UserAvatarFilledAlt} href="/login"></HeaderActionLink>
 	</HeaderUtilities>
 </Header>
