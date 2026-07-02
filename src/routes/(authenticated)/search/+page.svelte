@@ -4,7 +4,7 @@
 	import { tooltip } from '$/lib/actions/tooltip';
 	import { LinkOut } from '$lib/icons';
 	import { pb } from '$lib/pocketbase';
-	import { debounce } from '$lib/utils';
+	import { debounce, escapeRegExp } from '$lib/utils';
 
 	let results = $state();
 	let searchTerm = $state();
@@ -94,7 +94,7 @@
 	const markupValue = (value, searchTerm) => {
 		return value
 			.toString()
-			.replace(new RegExp(searchTerm, 'gi'), (match) => `<mark>${match}</mark>`);
+			.replace(new RegExp(escapeRegExp(searchTerm), 'gi'), (match) => `<mark>${match}</mark>`);
 	};
 
 	$effect(() => {
