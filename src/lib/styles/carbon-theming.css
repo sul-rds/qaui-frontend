@@ -53,6 +53,10 @@
 	}
 }
 
+.bx--header__action.bx--header__action > svg {
+	fill: var(--panel-text);
+}
+
 /* Progress Bar */
 .bx--progress-bar__bar {
 	background-color: var(--primary);

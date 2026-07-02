@@ -197,3 +197,9 @@ export function inferEmptyValue(itemSchema) {
 			return '';
 	}
 }
+
+/**
+ * @param {string} str
+ * @returns {string}
+ */
+export const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

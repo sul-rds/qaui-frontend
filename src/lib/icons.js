@@ -13,3 +13,5 @@ export { default as Undo } from 'carbon-icons-svelte/lib/Undo.svelte';
 export { default as Reset } from 'carbon-icons-svelte/lib/Reset.svelte';
 
 export { default as Notes } from 'carbon-icons-svelte/lib/Catalog.svelte';
+
+export { default as LinkOut } from 'carbon-icons-svelte/lib/Launch.svelte';
