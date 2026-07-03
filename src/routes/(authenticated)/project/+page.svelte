@@ -230,7 +230,10 @@
 	}
 
 	section {
+		display: flex;
+		flex-direction: column;
 		margin: 0 auto;
+		overflow: hidden;
 		width: 100%;
 	}
 
