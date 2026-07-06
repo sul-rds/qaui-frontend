@@ -6,6 +6,7 @@
 
 	import Fields from '$components/Fields.svelte';
 	import ImageLoader from '$lib/ui-components/ImageLoader.svelte';
+	import { panzoom } from '$lib/actions/panzoom.js';
 
 	/**
 	 * @typedef {Object} FieldsProps
@@ -28,6 +29,7 @@
 	} = $props();
 
 	let showNotesPanel = $state(sessionStorage.getItem('qa-notes-panel') === 'true');
+	let panzoomNode = $state(null);
 
 	$effect(() => {
 		sessionStorage.setItem('qa-notes-panel', String(showNotesPanel));
@@ -97,7 +99,9 @@
 	</section>
 
 	<section class="image">
-		<ImageLoader fadeIn src={image.image_url} alt={image.title} />
+		<div class="panzoom-container" use:panzoom bind:this={panzoomNode}>
+			<ImageLoader fadeIn src={image.image_url} alt={image.title} />
+		</div>
 	</section>
 </article>
 
@@ -121,7 +125,7 @@
 			}
 
 			&.image {
-				overflow-y: auto;
+				overflow: hidden;
 			}
 		}
 	}
@@ -133,6 +137,20 @@
 
 		:global(button) {
 			margin: 0;
+		}
+	}
+
+	.panzoom-container {
+		width: 100%;
+		height: 100%;
+
+		:global(.image-loader) {
+			width: 100%;
+			height: 100%;
+
+			:global(img) {
+				object-fit: contain;
+			}
 		}
 	}
 
