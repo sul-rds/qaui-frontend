@@ -59,6 +59,9 @@
 	});
 	let pagedItems = $state(/** @type {Item[]} */ ([]));
 	let currentPage = $state(1);
+	let totalPages = $derived(
+		pageSize !== null ? Math.max(1, Math.ceil(items.length / pageSize)) : 1
+	);
 	let thead = $state();
 	let columnWidths = $state(/** @type {Record<number, number>} */ ({}));
 	let gridTemplate = $state('');
@@ -267,11 +270,31 @@
 				</strong>&nbsp;of&nbsp;<strong>{items.length.toLocaleString()}</strong>
 			</span>
 
-			<button disabled={currentPage === 1} onclick={() => (currentPage -= 1)}>
-				&laquo; Previous
+			<button disabled={currentPage === 1} onclick={() => (currentPage = 1)}>
+				&laquo; First
 			</button>
+			<button disabled={currentPage === 1} onclick={() => (currentPage -= 1)}> ‹ Previous </button>
+
+			<label>
+				Page
+				<input
+					type="number"
+					min="1"
+					max={totalPages}
+					value={currentPage}
+					onchange={(e) => {
+						const val = parseInt(/** @type {HTMLInputElement} */ (e.target).value, 10);
+						if (val >= 1 && val <= totalPages) currentPage = val;
+					}}
+				/>
+				of {totalPages}
+			</label>
+
 			<button disabled={currentPage * pageSize >= items.length} onclick={() => (currentPage += 1)}>
-				Next &raquo;
+				Next ›
+			</button>
+			<button disabled={currentPage === totalPages} onclick={() => (currentPage = totalPages)}>
+				Last &raquo;
 			</button>
 		{/if}
 	</div>
@@ -382,6 +405,21 @@
 
 		span {
 			flex-grow: 1;
+		}
+
+		label {
+			align-items: center;
+			display: flex;
+			gap: 0.35rem;
+
+			input {
+				background: transparent;
+				border-color: var(--primary);
+				border-radius: var(--border-radius);
+				padding: 0.2rem 0.3rem;
+				text-align: center;
+				width: calc(4ch + 1.5rem);
+			}
 		}
 	}
 </style>
