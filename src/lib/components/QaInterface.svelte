@@ -1,10 +1,11 @@
 <script>
-	import { Button, ImageLoader, Loading, TextArea } from 'carbon-components-svelte';
+	import { Button, TextArea } from 'carbon-components-svelte';
 	import { slide } from 'svelte/transition';
 
 	import { Approved, Flagged, Unapproved, Unflagged, Reset, Notes } from '$lib/icons';
 
 	import Fields from '$components/Fields.svelte';
+	import ImageLoader from '$lib/ui-components/ImageLoader.svelte';
 
 	/**
 	 * @typedef {Object} FieldsProps
@@ -96,11 +97,7 @@
 	</section>
 
 	<section class="image">
-		<ImageLoader fadeIn src={image.image_url} alt={image.title}>
-			<svelte:fragment slot="loading">
-				<Loading withOverlay={false} />
-			</svelte:fragment>
-		</ImageLoader>
+		<ImageLoader fadeIn src={image.image_url} alt={image.title} />
 	</section>
 </article>
 
@@ -125,11 +122,6 @@
 
 			&.image {
 				overflow-y: auto;
-			}
-
-			&.image:not(:has(img)) {
-				place-content: center;
-				display: grid;
 			}
 		}
 	}
