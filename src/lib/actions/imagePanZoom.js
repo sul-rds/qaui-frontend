@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} PanZoomParams
+ * @typedef {Object} ImagePanZoomParams
  * @prop {number} [minScale=0.5] - Minimum zoom level
  * @prop {number} [maxScale=5] - Maximum zoom level
  * @prop {number} [zoomSpeed=0.001] - Zoom sensitivity for wheel events
@@ -11,11 +11,12 @@
  * A Svelte action that adds pan and zoom functionality to an element.
  *
  * @param {HTMLElement} node
- * @param {PanZoomParams} [params]
- * @returns {{ update: (newParams: PanZoomParams) => void, destroy: () => void }}
+ * @param {ImagePanZoomParams} [params]
+ * @returns {{ update: (newParams: ImagePanZoomParams) => void, destroy: () => void }}
  */
-export function panzoom(node, params = {}) {
-	let { minScale = 0.5, maxScale = 5, zoomSpeed = 0.001, constrain = false, initialZoom } = params;
+export function imagePanZoom(node, params = {}) {
+	const DEFAULTS = { minScale: 0.5, maxScale: 5, zoomSpeed: 0.001, constrain: false };
+	let { minScale, maxScale, zoomSpeed, constrain, initialZoom } = { ...DEFAULTS, ...params };
 
 	let scale = 1;
 	let translateX = 0;
@@ -24,16 +25,19 @@ export function panzoom(node, params = {}) {
 	let startX = 0;
 	let startY = 0;
 
-	let parentRect = node.parentElement.getBoundingClientRect();
+	const parent = node.parentElement;
+	if (!parent) throw new Error('imagePanZoom: node must have a parent element');
+
+	let parentRect = parent.getBoundingClientRect();
 
 	const updateParentRect = () => {
-		parentRect = node.parentElement.getBoundingClientRect();
+		parentRect = parent.getBoundingClientRect();
 		clampTranslate();
 		applyTransform();
 	};
 
 	const resizeObserver = new ResizeObserver(updateParentRect);
-	resizeObserver.observe(node.parentElement);
+	resizeObserver.observe(parent);
 
 	const getContentBounds = () => {
 		const img = node.querySelector('img');
@@ -73,7 +77,7 @@ export function panzoom(node, params = {}) {
 		node.style.transformOrigin = '0 0';
 	};
 
-	const clampScale = (s) => {
+	const clampScale = (/** @type {number} */ s) => {
 		let effectiveMin = minScale;
 		if (constrain) {
 			effectiveMin = Math.max(effectiveMin, 1);
@@ -167,7 +171,7 @@ export function panzoom(node, params = {}) {
 
 	return {
 		update(newParams) {
-			({ minScale, maxScale, zoomSpeed, constrain, initialZoom } = newParams);
+			({ minScale, maxScale, zoomSpeed, constrain, initialZoom } = { ...DEFAULTS, ...newParams });
 		},
 		destroy() {
 			resizeObserver.disconnect();

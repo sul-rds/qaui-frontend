@@ -6,7 +6,7 @@
 
 	import Fields from '$components/Fields.svelte';
 	import ImageLoader from '$lib/ui-components/ImageLoader.svelte';
-	import { panzoom } from '$lib/actions/panzoom.js';
+	import { imagePanZoom } from '$lib/actions/imagePanZoom.js';
 
 	/**
 	 * @typedef {Object} FieldsProps
@@ -29,7 +29,7 @@
 	} = $props();
 
 	let showNotesPanel = $state(sessionStorage.getItem('qa-notes-panel') === 'true');
-	let panzoomNode = $state(null);
+	let panZoomNode = $state(/** @type {HTMLDivElement} */);
 
 	$effect(() => {
 		sessionStorage.setItem('qa-notes-panel', String(showNotesPanel));
@@ -101,8 +101,8 @@
 	<section class="image">
 		<div
 			class="panzoom-container"
-			use:panzoom={{ constrain: true, initialZoom: 'width' }}
-			bind:this={panzoomNode}
+			use:imagePanZoom={{ constrain: true, initialZoom: 'width' }}
+			bind:this={panZoomNode}
 		>
 			<ImageLoader fadeIn src={image.image_url} alt={image.title} />
 		</div>
