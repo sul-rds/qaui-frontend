@@ -99,7 +99,11 @@
 	</section>
 
 	<section class="image">
-		<div class="panzoom-container" use:panzoom={{ constrain: true }} bind:this={panzoomNode}>
+		<div
+			class="panzoom-container"
+			use:panzoom={{ constrain: true, initialZoom: 'width' }}
+			bind:this={panzoomNode}
+		>
 			<ImageLoader fadeIn src={image.image_url} alt={image.title} />
 		</div>
 	</section>

@@ -4,6 +4,7 @@
  * @prop {number} [maxScale=5] - Maximum zoom level
  * @prop {number} [zoomSpeed=0.001] - Zoom sensitivity for wheel events
  * @prop {boolean} [constrain=false] - Constrain pan/zoom so image content always covers the parent
+ * @prop {'width' | 'height'} [initialZoom] - Start zoomed to fill parent width or height
  */
 
 /**
@@ -14,7 +15,7 @@
  * @returns {{ update: (newParams: PanZoomParams) => void, destroy: () => void }}
  */
 export function panzoom(node, params = {}) {
-	let { minScale = 0.5, maxScale = 5, zoomSpeed = 0.001, constrain = false } = params;
+	let { minScale = 0.5, maxScale = 5, zoomSpeed = 0.001, constrain = false, initialZoom } = params;
 
 	let scale = 1;
 	let translateX = 0;
@@ -45,6 +46,26 @@ export function panzoom(node, params = {}) {
 		const w = img.naturalWidth * fitScale;
 		const h = img.naturalHeight * fitScale;
 		return { left: (nodeW - w) / 2, top: (nodeH - h) / 2, width: w, height: h };
+	};
+
+	const applyInitialZoom = () => {
+		if (!initialZoom) return;
+		const c = getContentBounds();
+		if (c.width === 0 || c.height === 0) return;
+
+		if (initialZoom === 'width') {
+			scale = parentRect.width / c.width;
+			translateX = 0;
+			translateY = (parentRect.height - c.height * scale) / 2 - c.top * scale;
+		} else if (initialZoom === 'height') {
+			scale = parentRect.height / c.height;
+			translateY = 0;
+			translateX = (parentRect.width - c.width * scale) / 2 - c.left * scale;
+		}
+
+		scale = clampScale(scale);
+		clampTranslate();
+		applyTransform();
 	};
 
 	const applyTransform = () => {
@@ -114,11 +135,15 @@ export function panzoom(node, params = {}) {
 	};
 
 	const handleDoubleClick = () => {
-		scale = 1;
-		translateX = 0;
-		translateY = 0;
+		if (initialZoom) {
+			applyInitialZoom();
+		} else {
+			scale = 1;
+			translateX = 0;
+			translateY = 0;
+			applyTransform();
+		}
 		node.style.transition = 'transform 0.2s ease';
-		applyTransform();
 		setTimeout(() => (node.style.transition = ''), 200);
 	};
 
@@ -131,9 +156,18 @@ export function panzoom(node, params = {}) {
 	node.style.cursor = 'grab';
 	node.style.touchAction = 'none';
 
+	if (initialZoom) {
+		const img = node.querySelector('img');
+		if (img && !img.complete) {
+			img.addEventListener('load', applyInitialZoom, { once: true });
+		} else {
+			applyInitialZoom();
+		}
+	}
+
 	return {
 		update(newParams) {
-			({ minScale, maxScale, zoomSpeed, constrain } = newParams);
+			({ minScale, maxScale, zoomSpeed, constrain, initialZoom } = newParams);
 		},
 		destroy() {
 			resizeObserver.disconnect();
