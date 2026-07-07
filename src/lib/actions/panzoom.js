@@ -23,7 +23,16 @@ export function panzoom(node, params = {}) {
 	let startX = 0;
 	let startY = 0;
 
-	const parentRect = node.parentElement.getBoundingClientRect();
+	let parentRect = node.parentElement.getBoundingClientRect();
+
+	const updateParentRect = () => {
+		parentRect = node.parentElement.getBoundingClientRect();
+		clampTranslate();
+		applyTransform();
+	};
+
+	const resizeObserver = new ResizeObserver(updateParentRect);
+	resizeObserver.observe(node.parentElement);
 
 	const getContentBounds = () => {
 		const img = node.querySelector('img');
@@ -127,6 +136,7 @@ export function panzoom(node, params = {}) {
 			({ minScale, maxScale, zoomSpeed, constrain } = newParams);
 		},
 		destroy() {
+			resizeObserver.disconnect();
 			node.removeEventListener('wheel', handleWheel);
 			node.removeEventListener('mousedown', handleMouseDown);
 			window.removeEventListener('mousemove', handleMouseMove);
