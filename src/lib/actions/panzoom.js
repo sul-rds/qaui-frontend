@@ -43,7 +43,13 @@ export function panzoom(node, params = {}) {
 		node.style.transformOrigin = '0 0';
 	};
 
-	const clampScale = (s) => Math.min(maxScale, Math.max(minScale, s));
+	const clampScale = (s) => {
+		let effectiveMin = minScale;
+		if (constrain) {
+			effectiveMin = Math.max(effectiveMin, 1);
+		}
+		return Math.min(maxScale, Math.max(effectiveMin, s));
+	};
 
 	const clampTranslate = () => {
 		if (!constrain) return;
