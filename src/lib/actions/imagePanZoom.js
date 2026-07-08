@@ -59,12 +59,8 @@ export function imagePanZoom(node, params = {}) {
 
 		if (initialZoom === 'width') {
 			scale = parentRect.width / c.width;
-			translateX = 0;
-			translateY = (parentRect.height - c.height * scale) / 2 - c.top * scale;
 		} else if (initialZoom === 'height') {
 			scale = parentRect.height / c.height;
-			translateY = 0;
-			translateX = (parentRect.width - c.width * scale) / 2 - c.left * scale;
 		}
 
 		scale = clampScale(scale);
