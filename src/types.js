@@ -1,8 +1,9 @@
 /**
  * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse} ImagesResponse
  * @typedef {import('$lib/pocketbase/generated-types').UsersResponse} UsersResponse
+ * @typedef {import('$lib/pocketbase/generated-types').ProjectsResponse} ProjectsResponse
  *
- * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse<unknown, unknown, { approved_by: UsersResponse }>} ImageWithApprovedBy
+ * @typedef {import('$lib/pocketbase/generated-types').ImagesResponse<unknown, unknown, { approved_by: UsersResponse, project: ProjectsResponse }>} ImageWithApprovedBy
  */
 
 /**

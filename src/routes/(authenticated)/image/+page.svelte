@@ -35,7 +35,6 @@
 		try {
 			image = await getImageById(imageId);
 			project = await getProjectById(image.project);
-			image.image_url = `${project.image_base ?? ''}${image.image_url}`;
 		} catch (e) {
 			error = e;
 		} finally {

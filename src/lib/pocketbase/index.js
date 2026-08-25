@@ -12,6 +12,18 @@ import { pbApiUrl } from '$lib/config';
 export const pb = new PocketBase(pbApiUrl);
 
 /**
+ * Prefixes an image's `image_url` with its expanded project's `image_base`.
+ * @param {ImageWithApprovedBy} image - An image record with `project` expanded.
+ * @returns {ImageWithApprovedBy} The image record with an absolute `image_url`.
+ */
+function withImageUrl(image) {
+	return {
+		...image,
+		image_url: `${image.expand?.project?.image_base ?? ''}${image.image_url}`
+	};
+}
+
+/**
  * Attempts to log in to the PocketBase instance using the provided email and password.
  * If user authentication fails, it will try admin authentication.
  * @param {string} email - The email address to log in with.
@@ -52,7 +64,10 @@ export async function getProjectById(id) {
  */
 export async function getImagesByProjectId(id, filters) {
 	const filter = filters ? `project="${id}" && ${filters}` : `project="${id}"`;
-	return pb.collection('images').getFullList({ filter, expand: 'approved_by' });
+	const images = /** @type {ImageWithApprovedBy[]} */ (
+		await pb.collection('images').getFullList({ filter, expand: 'approved_by,project' })
+	);
+	return images.map(withImageUrl);
 }
 
 /**
@@ -61,7 +76,32 @@ export async function getImagesByProjectId(id, filters) {
  * @returns {Promise<ImageWithApprovedBy>} The retrieved image record.
  */
 export async function getImageById(id) {
-	return pb.collection('images').getOne(id, { expand: 'approved_by' });
+	const image = /** @type {ImageWithApprovedBy} */ (
+		await pb.collection('images').getOne(id, { expand: 'approved_by,project' })
+	);
+	return withImageUrl(image);
+}
+
+/**
+ * Searches image records for a query across the given fields.
+ * @param {string} query - The search term.
+ * @param {{ title?: boolean, data?: boolean, notes?: boolean }} searchFields - Which fields to search.
+ * @returns {Promise<import('pocketbase').ListResult<ImageWithApprovedBy>>} The matching image records.
+ */
+export async function searchImages(query, searchFields) {
+	const filter = Object.entries(searchFields)
+		.filter(([, v]) => v)
+		.map(([f]) => `${f} ~ {:q}`)
+		.join(' || ');
+
+	const results = /** @type {import('pocketbase').ListResult<ImageWithApprovedBy>} */ (
+		await pb.collection('images').getList(1, 20, {
+			filter: pb.filter(filter, { q: query }),
+			expand: 'project'
+		})
+	);
+	results.items = results.items.map(withImageUrl);
+	return results;
 }
 
 /**

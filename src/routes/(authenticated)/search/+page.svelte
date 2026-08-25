@@ -5,7 +5,7 @@
 
 	import { tooltip } from '$/lib/actions/tooltip';
 	import { LinkOut } from '$lib/icons';
-	import { pb } from '$lib/pocketbase';
+	import { searchImages } from '$lib/pocketbase';
 	import { debounce, escapeRegExp } from '$lib/utils';
 
 	const params = page.url.searchParams;
@@ -20,14 +20,7 @@
 	const debouncedSearch = debounce(async (query, searchFields) => {
 		if (!query) return;
 
-		const filter = Object.entries(searchFields)
-			.filter(([_, v]) => v)
-			.map(([f]) => `${f} ~ {:q}`)
-			.join(' || ');
-
-		results = await pb.collection('images').getList(1, 20, {
-			filter: pb.filter(filter, { q: query })
-		});
+		results = await searchImages(query, searchFields);
 	}, 500);
 
 	const searchObject = (obj, searchTerm) => {
