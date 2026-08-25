@@ -10,7 +10,7 @@
 {#await projects then projects}
 	<section>
 		{#each projects as project (project)}
-			<ClickableTile light href="project/?projectId={project.id}">
+			<ClickableTile light href="project?projectId={project.id}">
 				<h3>{project.name} <ArrowRight size={32} /></h3>
 				<p>{project.description}</p>
 			</ClickableTile>
