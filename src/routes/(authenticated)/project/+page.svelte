@@ -14,6 +14,7 @@
 	let showModified = $state('any');
 	let showFlagged = $state('any');
 
+	/** @type {Promise<ProjectsRecord>|ProjectsRecord|undefined} */
 	let project = $state();
 	/** @type {Promise<ImageWithApprovedBy[]>|ImageWithApprovedBy[]} */
 	let projectImages = $state([]);

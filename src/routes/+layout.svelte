@@ -22,7 +22,7 @@
 	let breadcrumbs = $state(homeLink);
 	setContext('breadcrumbs', {
 		get: () => breadcrumbs,
-		set: (value) => {
+		set: (/** @type {{link: string, name: string}[]} */ value) => {
 			if (value && value.every((crumb) => crumb.name)) {
 				breadcrumbs = [...homeLink, ...value];
 			} else {

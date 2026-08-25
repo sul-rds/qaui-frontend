@@ -51,7 +51,6 @@
 	let data = $state({});
 
 	const debouncedSaveData = debounce(() => {
-		console.log('Saving...');
 		image.modified = !deepEqual($state.snapshot(data), $state.snapshot(image.original_data));
 		updateImageRecord(image.id, {
 			data: $state.snapshot(data),
@@ -60,7 +59,6 @@
 	}, 500);
 
 	const debouncedSaveNotes = debounce((notes) => {
-		console.log('Saving Notes...');
 		updateImageRecord(image.id, { notes }).then(() => (saving = false));
 	}, 500);
 
