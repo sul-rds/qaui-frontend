@@ -17,6 +17,14 @@
 	let project = $state();
 	/** @type {Promise<ImageWithApprovedBy[]>|ImageWithApprovedBy[]} */
 	let projectImages = $state([]);
+	let projectImagesWithUrls = $derived(
+		Promise.all([project, projectImages]).then(([_project, images]) =>
+			images.map((image) => ({
+				...image,
+				image_url: `${_project?.image_base ?? ''}${image.image_url}`
+			}))
+		)
+	);
 
 	const filterOptions = [
 		{ value: 'any', label: 'any', color: 'var(--primary)' },
@@ -193,7 +201,7 @@
 		{/if}
 	</header>
 
-	{#await projectImages then images}
+	{#await projectImagesWithUrls then images}
 		{#if images.length}
 			<section>
 				<Table data={images} {fields} keyAccessor="id" id="images-table" pageSize={15} />

@@ -116,6 +116,7 @@ export type ProjectsRecord<Tschema = unknown> = {
 	created: IsoAutoDateString
 	description?: HTMLString
 	id: string
+	image_base?: string
 	link?: string
 	name?: string
 	schema?: null | Tschema
