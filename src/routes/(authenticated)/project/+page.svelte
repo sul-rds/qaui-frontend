@@ -195,7 +195,9 @@
 		{/if}
 	</header>
 
-	{#await projectImages then images}
+	{#await projectImages}
+		<Loading description="Loading images" withOverlay={true} />
+	{:then images}
 		{#if images.length}
 			<section>
 				<Table data={images} {fields} keyAccessor="id" id="images-table" pageSize={15} />
