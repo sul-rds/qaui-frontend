@@ -101,7 +101,7 @@
 	<section class="image">
 		<div
 			class="panzoom-container"
-			use:imagePanZoom={{ constrain: true, initialZoom: 'width' }}
+			use:imagePanZoom={{ constrain: true, initialZoom: 'width', align: 'top' }}
 			bind:this={panZoomNode}
 		>
 			<ImageLoader fadeIn src={image.image_url} alt={image.title} />
@@ -154,6 +154,7 @@
 
 			:global(img) {
 				object-fit: contain;
+				object-position: top;
 			}
 		}
 	}

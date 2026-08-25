@@ -5,6 +5,7 @@
  * @prop {number} [zoomSpeed=0.001] - Zoom sensitivity for wheel events
  * @prop {boolean} [constrain=false] - Constrain pan/zoom so image content always covers the parent
  * @prop {'width' | 'height'} [initialZoom] - Start zoomed to fill parent width or height
+ * @prop {'center' | 'top'} [align='center'] - Vertical alignment of content when shorter than the parent
  */
 
 /**
@@ -15,8 +16,8 @@
  * @returns {{ update: (newParams: ImagePanZoomParams) => void, destroy: () => void }}
  */
 export function imagePanZoom(node, params = {}) {
-	const DEFAULTS = { minScale: 0.5, maxScale: 5, zoomSpeed: 0.001, constrain: false };
-	let { minScale, maxScale, zoomSpeed, constrain, initialZoom } = { ...DEFAULTS, ...params };
+	const DEFAULTS = { minScale: 0.5, maxScale: 5, zoomSpeed: 0.001, constrain: false, align: 'center' };
+	let { minScale, maxScale, zoomSpeed, constrain, initialZoom, align } = { ...DEFAULTS, ...params };
 
 	let scale = 1;
 	let translateX = 0;
@@ -49,7 +50,8 @@ export function imagePanZoom(node, params = {}) {
 		const fitScale = Math.min(nodeW / img.naturalWidth, nodeH / img.naturalHeight);
 		const w = img.naturalWidth * fitScale;
 		const h = img.naturalHeight * fitScale;
-		return { left: (nodeW - w) / 2, top: (nodeH - h) / 2, width: w, height: h };
+		const top = align === 'top' ? 0 : (nodeH - h) / 2;
+		return { left: (nodeW - w) / 2, top, width: w, height: h };
 	};
 
 	const applyInitialZoom = () => {
@@ -92,7 +94,12 @@ export function imagePanZoom(node, params = {}) {
 		const minY = parentRect.height - (c.top + c.height) * scale;
 
 		translateX = maxX < minX ? (maxX + minX) / 2 : Math.min(maxX, Math.max(minX, translateX));
-		translateY = maxY < minY ? (maxY + minY) / 2 : Math.min(maxY, Math.max(minY, translateY));
+		translateY =
+			maxY < minY
+				? align === 'top'
+					? maxY
+					: (maxY + minY) / 2
+				: Math.min(maxY, Math.max(minY, translateY));
 	};
 
 	const handleWheel = (/** @type {WheelEvent} */ e) => {
@@ -167,7 +174,10 @@ export function imagePanZoom(node, params = {}) {
 
 	return {
 		update(newParams) {
-			({ minScale, maxScale, zoomSpeed, constrain, initialZoom } = { ...DEFAULTS, ...newParams });
+			({ minScale, maxScale, zoomSpeed, constrain, initialZoom, align } = {
+				...DEFAULTS,
+				...newParams
+			});
 		},
 		destroy() {
 			resizeObserver.disconnect();
