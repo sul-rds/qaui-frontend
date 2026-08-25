@@ -17,13 +17,16 @@
 
 	let { children } = $props();
 
-	let platformName = $state('Structured Data from Images - QA UI');
-	setContext('header', {
-		get: () => platformName,
+	const homeLink = [{ name: 'Structured Data from Images - QA UI', link: '/' }];
+
+	let breadcrumbs = $state(homeLink);
+	setContext('breadcrumbs', {
+		get: () => breadcrumbs,
 		set: (value) => {
-			platformName = 'Structured Data from Images - QA UI';
-			if (value && value.every(Boolean)) {
-				platformName += ' → ' + value.join(' → ');
+			if (value && value.every((crumb) => crumb.name)) {
+				breadcrumbs = [...homeLink, ...value];
+			} else {
+				breadcrumbs = homeLink;
 			}
 		}
 	});
@@ -35,7 +38,13 @@
 	<meta name="dcterms.modified" content={__BUILD_TIME__} />
 </svelte:head>
 
-<Header companyName="SUL-RDS" {platformName} href="/">
+<Header companyName="SUL-RDS">
+	<svelte:fragment slot="platform">
+		<!--eslint-disable-next-line svelte/no-at-html-tags -->
+		{@html breadcrumbs
+			.map((crumb) => `<a href=${crumb.link}>${crumb.name}</a>`)
+			.join('<span> → </span>')}
+	</svelte:fragment>
 	<img slot="company" src={favicon} alt="Stanford University Libraries" class="sul-logo" />
 	<svelte:fragment slot="skipToContent">
 		<SkipToContent />

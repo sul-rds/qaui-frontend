@@ -50,6 +50,13 @@
 	.bx--header__name,
 	.bx--header__name:hover {
 		color: var(--panel-text);
+		a {
+			color: var(--panel-text);
+			text-decoration: none;
+		}
+		a + span {
+			margin: 0 0.5rem;
+		}
 	}
 }
 

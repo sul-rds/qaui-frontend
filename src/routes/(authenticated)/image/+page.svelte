@@ -105,12 +105,15 @@
 		return () => debouncedSaveNotes.cancel();
 	});
 
-	const header = getContext('header');
+	const breadcrumbs = getContext('breadcrumbs');
 	$effect(() => {
 		Promise.all([project, image]).then(([_project, _image]) =>
-			header.set([_project?.name, _image?.title])
+			breadcrumbs.set([
+				{ name: _project?.name, link: `/project?projectId=${_project?.id}` },
+				{ name: _image?.title, link: `/image?imageId=${_image?.id}` }
+			])
 		);
-		return () => header.set();
+		return () => breadcrumbs.set();
 	});
 
 	loadData(page.url.searchParams.get('imageId') || '');

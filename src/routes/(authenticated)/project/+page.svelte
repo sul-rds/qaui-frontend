@@ -2,7 +2,7 @@
 	import { getContext } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { InlineNotification } from 'carbon-components-svelte';
+	import { InlineNotification, Loading } from 'carbon-components-svelte';
 	import { Approved, Modified, Flagged } from '$lib/icons';
 
 	import { getProjectById, getImagesByProjectId } from '$lib/pocketbase';
@@ -29,10 +29,12 @@
 		project = getProjectById(projectId);
 	}
 
-	const header = getContext('header');
+	const breadcrumbs = getContext('breadcrumbs');
 	$effect(() => {
-		project?.then((_project) => header.set([_project?.name]));
-		return () => header.set();
+		project?.then((_project) =>
+			breadcrumbs.set([{ name: _project?.name, link: `/project?projectId=${_project?.id}` }])
+		);
+		return () => breadcrumbs.set();
 	});
 
 	$effect(() => {
