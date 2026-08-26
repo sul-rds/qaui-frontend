@@ -57,17 +57,22 @@ export async function getProjectById(id) {
 }
 
 /**
- * Retrieves all image records associated with a given project ID.
+ * Retrieves a page of image records associated with a given project ID.
  * @param {string} id - The ID of the project to retrieve image records for.
- * @param {string} [filters] - Optional filters to apply to the image records.
- * @returns {Promise<ImageWithApprovedBy[]>} The retrieved image records.
+ * @param {Object} [options]
+ * @param {string} [options.filters] - Optional filters to AND with the project filter.
+ * @param {string} [options.sort] - PocketBase sort string (e.g. `"title"` or `"-title"`).
+ * @param {number} [options.page] - The page number to retrieve (1-indexed).
+ * @param {number} [options.perPage] - The number of records per page.
+ * @returns {Promise<import('pocketbase').ListResult<ImageWithApprovedBy>>} The requested page of image records.
  */
-export async function getImagesByProjectId(id, filters) {
+export async function getImagesByProjectId(id, { filters, sort, page = 1, perPage = 30 } = {}) {
 	const filter = filters ? `project="${id}" && ${filters}` : `project="${id}"`;
-	const images = /** @type {ImageWithApprovedBy[]} */ (
-		await pb.collection('images').getFullList({ filter, expand: 'approved_by,project' })
+	const result = /** @type {import('pocketbase').ListResult<ImageWithApprovedBy>} */ (
+		await pb.collection('images').getList(page, perPage, { filter, sort, expand: 'approved_by,project' })
 	);
-	return images.map(withImageUrl);
+	result.items = result.items.map(withImageUrl);
+	return result;
 }
 
 /**

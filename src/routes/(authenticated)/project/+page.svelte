@@ -13,11 +13,21 @@
 	let showApproved = $state('any');
 	let showModified = $state('any');
 	let showFlagged = $state('any');
+	let currentPage = $state(1);
+	let sortOrder = $state(/** @type {string|undefined} */ (undefined));
+
+	const pageSize = 15;
 
 	/** @type {Promise<ProjectsRecord>|ProjectsRecord|undefined} */
 	let project = $state();
-	/** @type {Promise<ImageWithApprovedBy[]>|ImageWithApprovedBy[]} */
-	let projectImages = $state([]);
+	/** @type {Promise<import('pocketbase').ListResult<ImageWithApprovedBy>>|import('pocketbase').ListResult<ImageWithApprovedBy>} */
+	let projectImages = $state({
+		items: [],
+		totalItems: 0,
+		page: 1,
+		perPage: pageSize,
+		totalPages: 1
+	});
 
 	const filterOptions = [
 		{ value: 'any', label: 'any', color: 'var(--primary)' },
@@ -38,6 +48,19 @@
 		return () => breadcrumbs.set();
 	});
 
+	/** Translates Table's `"key-asc"/"key-desc"` sortOrder into a PocketBase sort string. */
+	function toPbSort(/** @type {string|undefined} */ sortOrder) {
+		if (!sortOrder) return undefined;
+		const parts = sortOrder.split('-');
+		const direction = parts.pop();
+		const key = parts.join('-');
+		const field = fields.find((field) => field.key === key);
+		if (!field) return undefined;
+		return direction === 'desc' ? `-${field.accessor}` : `${field.accessor}`;
+	}
+
+	let previousQueryKey = /** @type {string|undefined} */ (undefined);
+
 	$effect(() => {
 		if (!projectId) return;
 		let filters = Object.entries({
@@ -48,7 +71,22 @@
 			.map(([k, v]) => (v !== 'any' ? `${k}=${v}` : null))
 			.filter(Boolean)
 			.join(' && ');
-		projectImages = getImagesByProjectId(projectId, filters);
+		const sort = toPbSort(sortOrder);
+
+		// Reset to the first page whenever the filters or sort change, since the
+		// previously viewed page may no longer exist for the new result set.
+		const queryKey = `${filters}|${sort}`;
+		if (queryKey !== previousQueryKey) {
+			previousQueryKey = queryKey;
+			currentPage = 1;
+		}
+
+		projectImages = getImagesByProjectId(projectId, {
+			filters,
+			sort,
+			page: currentPage,
+			perPage: pageSize
+		});
 	});
 
 	const fields = [
@@ -196,12 +234,19 @@
 		{/if}
 	</header>
 
-	{#await projectImages}
-		<Loading description="Loading images" withOverlay={true} />
-	{:then images}
-		{#if images.length}
+	{#await projectImages then images}
+		{#if images.totalItems}
 			<section>
-				<Table data={images} {fields} keyAccessor="id" id="images-table" pageSize={15} />
+				<Table
+					data={images.items}
+					{fields}
+					keyAccessor="id"
+					id="images-table"
+					{pageSize}
+					totalItems={images.totalItems}
+					bind:currentPage
+					bind:sortOrder
+				/>
 			</section>
 		{/if}
 	{/await}

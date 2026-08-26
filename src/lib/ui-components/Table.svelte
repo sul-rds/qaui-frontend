@@ -22,7 +22,7 @@
 
 	/**
 	 * @typedef {Object} TableProps
-	 * @prop {Item[]} data
+	 * @prop {Item[]} data - The current page's items. Sorting and pagination are the caller's responsibility.
 	 * @prop {Field[]} fields
 	 * @prop {string|number} keyAccessor - Accessor (object key or array index) for the primary key.
 	 * @prop {(event: MouseEvent, item: Item) => any} [onRowClick]
@@ -30,38 +30,29 @@
 	 * @prop {string} [class]
 	 * @prop {string} [label]
 	 * @prop {number|null} [pageSize]
+	 * @prop {number} [totalItems] - Total row count across all pages; defaults to `data.length` for unpaginated use.
+	 * @prop {number} [currentPage]
+	 * @prop {string} [sortOrder]
 	 */
 
 	/** @type {TableProps} */
-	let { data, fields, keyAccessor, onRowClick, label, pageSize = null, ...props } = $props();
+	let {
+		data,
+		fields,
+		keyAccessor,
+		onRowClick,
+		label,
+		pageSize = null,
+		totalItems = data.length,
+		currentPage = $bindable(1),
+		sortOrder = $bindable(),
+		...props
+	} = $props();
 
 	let loading = $state(true);
 	let tbody = $state();
 	let scrollbarOffset = $state(0);
-	let sortOrder = $state();
-	let items = $derived.by(() => {
-		let result = [...data];
-		if (sortOrder) {
-			const parts = sortOrder.split('-');
-			const direction = parts.pop();
-			const key = parts.join('-');
-			const field = fields.find((field) => field.key === key);
-			if (field) {
-				const asc = direction === 'asc';
-				result.sort((a, b) => {
-					if (a[field.accessor] < b[field.accessor]) return asc ? -1 : 1;
-					if (a[field.accessor] > b[field.accessor]) return asc ? 1 : -1;
-					return 0;
-				});
-			}
-		}
-		return result;
-	});
-	let pagedItems = $state(/** @type {Item[]} */ ([]));
-	let currentPage = $state(1);
-	let totalPages = $derived(
-		pageSize !== null ? Math.max(1, Math.ceil(items.length / pageSize)) : 1
-	);
+	let totalPages = $derived(pageSize !== null ? Math.max(1, Math.ceil(totalItems / pageSize)) : 1);
 	let thead = $state();
 	let columnWidths = $state(/** @type {Record<number, number>} */ ({}));
 	let gridTemplate = $state('');
@@ -177,12 +168,7 @@
 	});
 
 	$effect(() => {
-		const page = currentPage;
-		pagedItems =
-			pageSize !== null
-				? items.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize)
-				: items;
-		loading = false;
+		if (data) loading = false;
 	});
 
 	onMount(() => {
@@ -192,7 +178,7 @@
 
 <table
 	aria-label={label ?? 'Data table'}
-	aria-rowcount={items.length}
+	aria-rowcount={totalItems}
 	style:--n-columns={fields.length}
 	style:--scrollbar-offset={scrollbarOffset + 'px'}
 	{...props}
@@ -235,7 +221,7 @@
 			thead.style.translate = `-${/** @type {HTMLElement} */ (event.target)?.scrollLeft}px 0`;
 		}}
 	>
-		{#each pagedItems as item (item[keyAccessor])}
+		{#each data as item (item[keyAccessor])}
 			<tr onclick={(event) => onRowClick?.(event, item)}>
 				{#each fields as field, i (i)}
 					<td class={field.key}>
@@ -260,14 +246,14 @@
 </table>
 {#if pageSize !== null}
 	<div class="pagination">
-		{#if items.length === 0}
+		{#if totalItems === 0}
 			No results
 		{:else}
 			{@const pageStart = pageSize * (currentPage - 1) + 1}
 			<span aria-live="assertive">
 				Showing <strong>{pageStart}</strong>&nbsp;to&nbsp;<strong>
-					{Math.min(pageStart + pageSize - 1, items.length)}
-				</strong>&nbsp;of&nbsp;<strong>{items.length.toLocaleString()}</strong>
+					{Math.min(pageStart + pageSize - 1, totalItems)}
+				</strong>&nbsp;of&nbsp;<strong>{totalItems.toLocaleString()}</strong>
 			</span>
 
 			<button disabled={currentPage === 1} onclick={() => (currentPage = 1)}>
@@ -290,7 +276,7 @@
 				of {totalPages}
 			</label>
 
-			<button disabled={currentPage * pageSize >= items.length} onclick={() => (currentPage += 1)}>
+			<button disabled={currentPage * pageSize >= totalItems} onclick={() => (currentPage += 1)}>
 				Next ›
 			</button>
 			<button disabled={currentPage === totalPages} onclick={() => (currentPage = totalPages)}>
