@@ -32,8 +32,11 @@
 	async function loadData(/** @type {string} */ imageId) {
 		loading = true;
 		error = null;
+		previousImage = undefined;
+		nextImage = undefined;
 		try {
 			image = await getImageById(imageId);
+			initialized = false;
 			project = await getProjectById(image.project);
 		} catch (e) {
 			error = e;
@@ -114,7 +117,9 @@
 		return () => breadcrumbs.set();
 	});
 
-	loadData(page.url.searchParams.get('imageId') || '');
+	$effect(() => {
+		loadData(page.url.searchParams.get('imageId') || '');
+	});
 </script>
 
 <svelte:head>
@@ -144,7 +149,6 @@
 			icon={ArrowLeft}
 			disabled={!previousImage}
 			href="image?imageId={previousImage?.id}"
-			onclick={() => loadData(previousImage.id)}
 		/>
 		<div class="toolbar-center">
 			<div class:hidden={!saving}><Loading withOverlay={false} small /></div>
@@ -166,7 +170,6 @@
 			icon={ArrowRight}
 			disabled={!nextImage}
 			href="image?imageId={nextImage?.id}"
-			onclick={() => loadData(nextImage.id)}
 		/>
 	</div>
 	<QaInterface
