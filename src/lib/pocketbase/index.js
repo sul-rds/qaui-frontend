@@ -83,6 +83,50 @@ export async function getImageById(id) {
 }
 
 /**
+ * Retrieves the image adjacent to the given one within its project, ordered by `created`
+ * (with `id` as a tiebreaker for images created at the same time).
+ * @param {ImageWithApprovedBy} image - The image to find a neighbor for.
+ * @param {'>' | '<'} operator - `'>'` for the next image, `'<'` for the previous one.
+ * @param {string} sort - The PocketBase sort string matching `operator`'s direction.
+ * @returns {Promise<ImageWithApprovedBy | undefined>} The adjacent image, or undefined if there isn't one.
+ */
+async function getAdjacentImage(image, operator, sort) {
+	const filter = pb.filter(
+		`project = {:project} && (created ${operator} {:created} || (created = {:created} && id ${operator} {:id}))`,
+		{ project: image.project, created: image.created, id: image.id }
+	);
+	try {
+		const result = /** @type {ImageWithApprovedBy} */ (
+			await pb
+				.collection('images')
+				.getFirstListItem(filter, { sort, expand: 'approved_by,project' })
+		);
+		return withImageUrl(result);
+	} catch (/** @type {any} */ e) {
+		if (e?.status === 404) return undefined;
+		throw e;
+	}
+}
+
+/**
+ * Retrieves the next image in the project by creation date.
+ * @param {ImageWithApprovedBy} image
+ * @returns {Promise<ImageWithApprovedBy | undefined>} The next image, or undefined.
+ */
+export async function getNextImage(image) {
+	return getAdjacentImage(image, '>', 'created,id');
+}
+
+/**
+ * Retrieves the previous image in the project by creation date.
+ * @param {ImageWithApprovedBy} image
+ * @returns {Promise<ImageWithApprovedBy | undefined>} The previous image, or undefined.
+ */
+export async function getPreviousImage(image) {
+	return getAdjacentImage(image, '<', '-created,-id');
+}
+
+/**
  * Searches image records for a query across the given fields.
  * @param {string} query - The search term.
  * @param {{ title?: boolean, data?: boolean, notes?: boolean }} searchFields - Which fields to search.

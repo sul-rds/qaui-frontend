@@ -13,7 +13,8 @@
 	import {
 		getProjectById,
 		getImageById,
-		getImagesByProjectId,
+		getNextImage,
+		getPreviousImage,
 		updateImageRecord,
 		pb
 	} from '$lib/pocketbase';
@@ -42,10 +43,7 @@
 			error = e;
 		} finally {
 			loading = false;
-			const projectImages = await getImagesByProjectId(image.project);
-			const currentIndex = projectImages.findIndex((i) => i.id === image.id);
-			previousImage = projectImages[currentIndex - 1];
-			nextImage = projectImages[currentIndex + 1];
+			[previousImage, nextImage] = await Promise.all([getPreviousImage(image), getNextImage(image)]);
 		}
 	}
 
